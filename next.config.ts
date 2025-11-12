@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
+import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone', 
+  images: {
+    domains: [
+      'picsum.photos', 
+      'fakestoreapi.com',
+      'loremflickr.com',
+      'source.unsplash.com',
+    ],
+  },
 };
 
-export default nextConfig;
+export default withFlowbiteReact(nextConfig);
