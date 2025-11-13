@@ -49,7 +49,7 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
         }
       `}</style>
       
-      <Navbar fluid className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2.5">
+      <Navbar fluid className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2.5">
         <NavbarBrand href="/">
           {/* Dark logo */}
           <Logo className="mr-3 w-9 h-6 sm:h-9 hidden dark:block" text="white" />

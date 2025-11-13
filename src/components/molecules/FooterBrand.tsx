@@ -1,3 +1,7 @@
+import Link from "next/link";
+import Image from "next/image";
+
+
 type FooterBrandProps = {
   href?: string;
   /** Light-mode logo (usually black text) */
@@ -11,7 +15,7 @@ type FooterBrandProps = {
   height?: number | string;
   /** Extra classes for the outer wrapper */
   className?: string;
-  /** Extra classes applied to the <img> elements */
+  /** Extra classes applied to the <Image> elements */
   imgClassName?: string;
   /** Puts the text before the logo (rare, but handy) */
   textFirst?: boolean;
@@ -33,24 +37,28 @@ export const FooterBrand = ({
   const LogoPair = (
     <>
       {/* Light logo visible by default, hidden in dark */}
-      <img
+      <Image
         src={srcLight}
         alt={alt}
-        style={{ height: h }}
+        width={0}
+        height={0}
+        style={{ height: h, width: "auto" }}
         className={`block dark:hidden ${imgClassName}`}
       />
       {/* Dark logo hidden by default, visible in dark */}
-      <img
+      <Image
         src={srcDark}
         alt={alt}
-        style={{ height: h }}
+        width={0}
+        height={0}
+        style={{ height: h, width: "auto" }}
         className={`hidden dark:block ${imgClassName}`}
       />
     </>
   );
 
   return (
-    <a
+    <Link
       href={href}
       className={`inline-flex items-center gap-2 select-none ${className}`}
       aria-label={name ?? alt}
@@ -72,6 +80,6 @@ export const FooterBrand = ({
           )}
         </>
       )}
-    </a>
+    </Link>
   );
 };

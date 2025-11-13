@@ -1,5 +1,4 @@
 import { Footer, FooterCopyright, FooterDivider, FooterLink, FooterLinkGroup } from "flowbite-react";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { FooterBrand } from "../molecules";
 
 
@@ -28,13 +27,6 @@ export const FooterComponent = ({ currentYear }: { currentYear: number }) => {
         </div>
 
         <FooterDivider className="my-4 border-gray-200 dark:border-gray-700" />
-
-        <div className="flex justify-center space-x-6 mb-4">
-          <a href="#" className="text-gray-500 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-white"><FaFacebookF size={18} /></a>
-          <a href="#" className="text-gray-500 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-white"><FaTwitter size={18} /></a>
-          <a href="#" className="text-gray-500 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-white"><FaInstagram size={18} /></a>
-          <a href="#" className="text-gray-500 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-white"><FaLinkedinIn size={18} /></a>
-        </div>
 
         <FooterCopyright href="#" by="Tech Trend Emporium™" year={currentYear} />
       </div>

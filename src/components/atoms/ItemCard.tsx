@@ -11,7 +11,7 @@ interface CardProps {
 export const ItemCard = ({ image, title, price, ctaText }: CardProps) => {
   const isPriceVisible = typeof price === "number" && !Number.isNaN(price);
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
+    <div className="flex flex-col justify-center items-center p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
                   hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700">
       <div className="relative w-full h-48 p-2">
         <Image
@@ -24,17 +24,17 @@ export const ItemCard = ({ image, title, price, ctaText }: CardProps) => {
         />
       </div>
 
-      <div className="p-4 flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-center">
           {title}
         </h3>
 
         {isPriceVisible ? (
-          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
             ${price!.toFixed(2)}
           </span>
         ) : (
-          <span className="text-xs uppercase tracking-wide bg-blue-600/10 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full">
+          <span className="text-xs uppercase tracking-wide bg-gray-900/10 text-gray-800 dark:bg-gray-600 dark:text-gray-100 px-3 py-1 rounded-full">
             {ctaText ?? "Explore"}
           </span>
         )}
