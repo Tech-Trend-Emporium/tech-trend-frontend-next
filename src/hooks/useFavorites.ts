@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import type { ProductResponse } from "@/src/models";
-import { getFavoritesArray } from "@/src/utils";
+import { getFavoritesArray, onFavoritesChanged } from "@/src/utils";
 import { swcGet } from "@/src/lib/swcCache";
 import { ProductService } from "@/src/services";
 
 
-const CACHE_TTL = 5 * 60 * 1000; 
+const CACHE_TTL = 5 * 60 * 1000;
 const FAVORITES_CACHE_KEY = "favorites-products";
 
 interface UseFavoritesReturn {
@@ -41,8 +41,8 @@ export const useFavorites = (): UseFavoritesReturn => {
                 async () => {
                     const productPromises = favoriteIds.map((id) =>
                         ProductService.getById(id).catch((err) => {
-                            console.error(`Error loading product ${id}:`, err);
-                            return null;
+                        console.error(`Error loading product ${id}:`, err);
+                        return null;
                         })
                     );
 
@@ -68,6 +68,10 @@ export const useFavorites = (): UseFavoritesReturn => {
     useEffect(() => {
         loadFavorites();
 
+        const unsubscribe = onFavoritesChanged(() => {
+            loadFavorites();
+        });
+
         const handleStorageChange = (e: StorageEvent) => {
             if (e.key === "favorites") {
                 loadFavorites();
@@ -75,7 +79,11 @@ export const useFavorites = (): UseFavoritesReturn => {
         };
 
         window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
+        
+        return () => {
+            unsubscribe();
+            window.removeEventListener("storage", handleStorageChange);
+        };
     }, []);
 
     return {
