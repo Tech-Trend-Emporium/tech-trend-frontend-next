@@ -4,7 +4,7 @@ import { checkAccess } from "./src/auth";
 import { Role } from "./src/models";
 
 
-export const middleware = (req: NextRequest) => {
+export const proxy = (req: NextRequest) => {
     const { pathname } = req.nextUrl;
     const token = req.cookies.get("token")?.value;
     const role  = (req.cookies.get("role")?.value ?? "") as Role;

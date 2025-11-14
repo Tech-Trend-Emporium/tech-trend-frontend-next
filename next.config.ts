@@ -4,11 +4,11 @@ import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 const nextConfig: NextConfig = {
   output: 'standalone', 
   images: {
-    domains: [
-      'picsum.photos', 
-      'fakestoreapi.com',
-      'loremflickr.com',
-      'source.unsplash.com',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'picsum.photos',},
+      { protocol: 'https', hostname: 'fakestoreapi.com'},
+      { protocol: 'https', hostname: 'loremflickr.com'},
+      { protocol: 'https', hostname: 'source.unsplash.com'},
     ],
   },
 };

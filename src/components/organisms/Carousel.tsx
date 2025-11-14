@@ -61,6 +61,7 @@ export const CarouselComponent = () => {
                   fill
                   className="object-cover w-full h-full brightness-90 dark:brightness-75"
                   priority={index === 0}
+                  loading="eager"
                 />
                 {/* Overlay sutil para mejorar contraste */}
                 <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />

@@ -100,8 +100,13 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
 
         <NavbarCollapse>
           <div className="flex items-center gap-4">
-            <NavbarLink href="#">ShopList</NavbarLink>
-            <NavbarLink href="#">Wishlist</NavbarLink>
+            <NavbarLink href="/favorites">Favorites</NavbarLink>
+            {(auth.isAuthenticated && role === 'SHOPPER') && (
+              <>  
+                <NavbarLink href="#">ShopList</NavbarLink>
+                <NavbarLink href="#">Wishlist</NavbarLink>
+              </>
+            )}
             <SearchBar />
           </div>
         </NavbarCollapse>
