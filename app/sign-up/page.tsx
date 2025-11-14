@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/auth";
-import { SignUpRequest } from "@/src/models";
-import { AuthTemplate, securityQuestions, SignUpForm } from "@/src/components";
+import { RecoveryQuestionResponseRaw, SignUpRequest } from "@/src/models";
+import { AuthTemplate, SignUpForm } from "@/src/components";
+import { RecoveryQuestionService } from "@/src/services";
 
 
 export default function SignUpPage() {
@@ -32,6 +33,23 @@ export default function SignUpPage() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [formError, setformError] = useState<string | null>(null);
+    const [securityQuestions, setSecurityQuestions] = useState<RecoveryQuestionResponseRaw[]>([]);
+    //const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+
+    useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        const response = await RecoveryQuestionService.list();
+        setSecurityQuestions(response.items);
+      } catch (error) {
+        console.error("Error loading security questions:", error);
+      }/* finally {
+        setIsLoadingQuestions(false);
+      }*/
+    };
+
+    loadQuestions();
+  }, []);
 
     const handleSelect = (value: string) => {
         setFormData((prev) => ({ ...prev, securityQuestion: value }));
@@ -66,6 +84,8 @@ export default function SignUpPage() {
         setErrorMessage((prev) => ({ ...prev, [name]: message }));
     };
 
+    
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -78,8 +98,9 @@ export default function SignUpPage() {
     const isFormValid = (() => {
         const isEmailValid = emailRegex.test(formData.email);
         const isPasswordValid = formData.password.length >= 6;
+        const isSecurityQuestionValid = securityQuestions.map((q) => (q.question)).includes(formData.securityQuestion)
         return (isEmailValid && isPasswordValid && (formData.password === formData.confirmPassword)
-                && (securityQuestions.includes(formData.securityQuestion)) && Boolean(formData.securityAnswer.trim()) 
+                 && Boolean(formData.securityAnswer.trim()) && isSecurityQuestionValid
                 && Boolean(formData.username.trim()));
     })();
 
@@ -91,12 +112,19 @@ export default function SignUpPage() {
 
         const hasErrors = Object.values(errorMessage).some((err) => err !== "");
         if (hasErrors) return;
+        
+        const questionObject = securityQuestions.find((q) => (q.question == formData.securityQuestion));
+        if (!questionObject) return;
 
         const payload: SignUpRequest = {
             email : formData.email,
             username : formData.username,
-            password : formData.password};
-        
+            password : formData.password,
+            recoveryQuestionId: questionObject.id,
+            recoveryAnswer: formData.securityAnswer,
+        }
+        console.log(payload.recoveryQuestionId)
+        console.log(payload.recoveryAnswer)
         setIsLoading(true);
         
         
@@ -124,6 +152,7 @@ export default function SignUpPage() {
             </h2>
             <SignUpForm
                 formData={formData}
+                securityQuestions={securityQuestions.map((q) => q.question)}
                 errorMessage={errorMessage}
                 isFormValid={isFormValid}
                 isLoading={isLoading}
@@ -135,3 +164,6 @@ export default function SignUpPage() {
         </AuthTemplate>
     );
 };
+
+
+// && (securityQuestions.includes(formData.securityQuestion))
