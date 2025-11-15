@@ -26,7 +26,6 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
 
     const updateFavoriteState = () => {
       const isFav = isFavorite(numericId);
-      console.log(`🔄 Syncing favorite state for product ${numericId}:`, isFav);
       setFavorite(isFav);
     };
 

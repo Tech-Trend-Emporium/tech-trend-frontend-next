@@ -101,8 +101,7 @@ export default function SignUpPage() {
         
         
         try {
-            const response = await signUp(payload);
-            console.log(response);
+            await signUp(payload);
             router.push('/sign-in');
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -110,7 +109,6 @@ export default function SignUpPage() {
                     ? `Error ${error.response?.status}: Conflict, may username and/or email are already taken, try again.`
                     : `Error ${error.response?.status}: Sign up error, try again later.`);
 
-                console.log(formData);
             }
         } finally {
             setIsLoading(false);
