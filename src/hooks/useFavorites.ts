@@ -2,13 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { ProductResponse } from "@/src/models";
-import { getFavoritesArray } from "@/src/utils";
-import { swcGet } from "@/src/lib/swcCache";
+import { getFavoritesArray, onFavoritesChanged } from "@/src/utils";
 import { ProductService } from "@/src/services";
 
-
-const CACHE_TTL = 5 * 60 * 1000; 
-const FAVORITES_CACHE_KEY = "favorites-products";
 
 interface UseFavoritesReturn {
     favoriteProducts: ProductResponse[];
@@ -35,26 +31,15 @@ export const useFavorites = (): UseFavoritesReturn => {
                 return;
             }
 
-            const products = await swcGet<ProductResponse[]>(
-                FAVORITES_CACHE_KEY,
-                CACHE_TTL,
-                async () => {
-                    const productPromises = favoriteIds.map((id) =>
-                        ProductService.getById(id).catch((err) => {
-                            console.error(`Error loading product ${id}:`, err);
-                            return null;
-                        })
-                    );
-
-                    const loadedProducts = await Promise.all(productPromises);
-                    return loadedProducts.filter((p): p is ProductResponse => p !== null);
-                }
+            const productPromises = favoriteIds.map((id) =>
+                ProductService.getById(id).catch((err) => {
+                    console.error(`Error loading product ${id}:`, err);
+                    return null;
+                })
             );
 
-            const currentFavoriteIds = getFavoritesArray();
-            const validProducts = products.filter((p) =>
-                currentFavoriteIds.includes(p.id)
-            );
+            const loadedProducts = await Promise.all(productPromises);
+            const validProducts = loadedProducts.filter((p): p is ProductResponse => p !== null);
 
             setFavoriteProducts(validProducts);
         } catch (err) {
@@ -68,6 +53,10 @@ export const useFavorites = (): UseFavoritesReturn => {
     useEffect(() => {
         loadFavorites();
 
+        const unsubscribe = onFavoritesChanged(() => {
+            loadFavorites();
+        });
+
         const handleStorageChange = (e: StorageEvent) => {
             if (e.key === "favorites") {
                 loadFavorites();
@@ -75,7 +64,11 @@ export const useFavorites = (): UseFavoritesReturn => {
         };
 
         window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
+
+        return () => {
+            unsubscribe();
+            window.removeEventListener("storage", handleStorageChange);
+        };
     }, []);
 
     return {

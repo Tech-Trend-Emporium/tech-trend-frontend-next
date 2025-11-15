@@ -1,8 +1,8 @@
 "use client";
 
-import { isFavorite, onFavoritesChanged, toggleFavorite } from "@/src/utils";
 import Image from "next/image";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { isFavorite, toggleFavorite, onFavoritesChanged } from "@/src/utils";
 
 
 interface CardProps {
@@ -14,41 +14,37 @@ interface CardProps {
 }
 
 export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
+  const [favorite, setFavorite] = useState(false);
   const isPriceVisible = typeof price === "number" && !Number.isNaN(price);
   const isProduct = isPriceVisible;
 
-  const [favorite, setFavorite] = useState(() => {
-    if (isProduct && id && typeof id === "number") {
-      return isFavorite(id);
-    }
-    return false;
-  });
-
-  const updateFavoriteState = useCallback(() => {
-    if (isProduct && id && typeof id === "number") {
-      setFavorite(isFavorite(id));
-    }
-  }, [id, isProduct]);
+  const numericId = typeof id === "string" ? parseInt(id, 10) : id;
+  const isValidId = typeof numericId === "number" && !isNaN(numericId);
 
   useEffect(() => {
-    if (!isProduct || !id) return;
+    if (!isProduct || !isValidId) return;
 
-    // Schedule the state update asynchronously to avoid calling setState synchronously within the effect
-    Promise.resolve().then(updateFavoriteState);
+    const updateFavoriteState = () => {
+      const isFav = isFavorite(numericId);
+      setFavorite(isFav);
+    };
+
+    updateFavoriteState();
 
     const unsubscribe = onFavoritesChanged(updateFavoriteState);
+
     return unsubscribe;
-  }, [updateFavoriteState]);
+  }, [numericId, isProduct, isValidId]);
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    if (!id || typeof id !== "number") {
+    if (!isValidId) {
       console.error("Cannot toggle: Invalid product ID:", id);
       return;
     }
     
-    const newState = toggleFavorite(id);
+    const newState = toggleFavorite(numericId);
     setFavorite(newState);
   };
 
@@ -60,8 +56,8 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
         <button
           onClick={handleToggleFavorite}
           className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-gray-700/90 
-                      hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 
-                      shadow-sm hover:shadow-md z-10"
+                    hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 
+                    shadow-sm hover:shadow-md z-10"
           aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
         >
           <svg
@@ -92,7 +88,7 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
         />
       </div>
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="mt-2 flex flex-col items-center gap-2">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-center">
           {title}
         </h3>
