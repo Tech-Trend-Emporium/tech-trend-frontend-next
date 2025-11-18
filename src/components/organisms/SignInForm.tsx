@@ -1,8 +1,8 @@
 "use client";
 
-import { CheckboxField, InputField } from "../atoms";
-import { Form } from ".";
+import { CheckboxField, InputField, Form } from "../";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
+
 
 interface SignInInputs {
   emailOrUsername: string;

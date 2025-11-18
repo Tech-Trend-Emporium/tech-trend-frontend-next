@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/src/auth";
 import { RecoveryQuestionService } from "@/src/services";
-import { AuthTemplate } from "@/src/components/templates";
-import { SignUpForm } from "@/src/components/organisms/SignUpForm";
-import { SignUpRequest, RecoveryQuestionResponseRaw } from "@/src/models";
+import { AuthTemplate, SignUpForm } from "@/src/components";
+import { SignUpRequest } from "@/src/models";
+
 
 export default function SignUpPage() {
   const router = useRouter();
