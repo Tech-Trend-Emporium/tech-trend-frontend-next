@@ -1,12 +1,12 @@
 import { Label, TextInput } from "flowbite-react";
 
 
-interface InputFieldProps {
+export interface InputFieldProps {
   id: string;
   label: string;
   name: string;
   type?: string;
-  value: string;
+  //value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   placeholder?: string;
@@ -17,7 +17,7 @@ export const InputField = ({
   label,
   name,
   type = "text",
-  value,
+  //value,
   onChange,
   required = true,
   placeholder,
@@ -33,7 +33,7 @@ export const InputField = ({
       id={id}
       name={name}
       type={type}
-      value={value}
+      
       onChange={onChange}
       required={required}
       placeholder={placeholder || label}
