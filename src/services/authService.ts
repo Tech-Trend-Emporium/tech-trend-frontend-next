@@ -2,7 +2,7 @@ import { http } from "../lib/http";
 import type { RefreshTokenRequest, ResetPasswordRequest, SetRecoveryInfoRequest, SignInRequest, SignInResponse, SignInResponseRaw, SignOutRequest, SignUpRequest, SignUpResponse, SignUpResponseRaw, VerifyRecoveryAnswerRequest, VerifyRecoveryAnswerResponse, VerifyRecoveryAnswerResponseRaw } from "../models";
 
 
-const BASE = "/Auth";
+const BASE = "/Auth"
 
 const toDate = (iso?: string | null) => (iso ? new Date(iso) : null);
 const mapSignIn = (r: SignInResponseRaw): SignInResponse => ({

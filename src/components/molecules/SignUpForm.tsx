@@ -1,3 +1,4 @@
+import { RecoveryQuestionResponseRaw } from "@/src/models";
 import { InputField, DropdownField } from "../atoms";
 import { Form } from "../organisms";
 
@@ -22,23 +23,11 @@ interface SignUpFormProps {
     formError: string | null;
     isFormValid: boolean;
     isLoading: boolean;
+    securityQuestions : string[]
     handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleSubmit: (e: React.FormEvent) => void;
     handleSelect: (value :string) => void;
 }
-
-export const securityQuestions = [
-    "What is your mother’s maiden name?",
-    "What was the name of your first pet?",
-    "What was your first car?",
-    "What elementary school did you attend?",
-    "What is your favorite book?",
-    "What city were you born in?",
-    "What is your favorite food?",
-    "What was the name of your first teacher?",
-    "What is the name of your best childhood friend?",
-    "What is your dream job?",
-];
 
 export const SignUpForm = ({
     formData,
@@ -46,6 +35,7 @@ export const SignUpForm = ({
     isFormValid,
     isLoading,
     formError,
+    securityQuestions,
     handleChange,
     handleSubmit,
     handleSelect,
