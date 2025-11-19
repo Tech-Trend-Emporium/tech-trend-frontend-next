@@ -2,6 +2,7 @@ export * from "./Button";
 export * from "./CheckBoxField";
 export * from "./DropDownField";
 export * from "./ErrorCode";
+export * from "./ErrorEventHandler";
 export * from "./ErrorIcon";
 export * from "./InputField";
 export * from "./ItemCard";

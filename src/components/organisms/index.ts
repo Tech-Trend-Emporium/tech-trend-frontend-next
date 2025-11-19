@@ -1,4 +1,6 @@
 export * from "./Carousel";
+export * from "./CreateCategoryForm";
+export * from "./CreateProductForm";
 export * from "./ExtraInfoOverNavbar";
 export * from "./Footer";
 export * from "./Form";

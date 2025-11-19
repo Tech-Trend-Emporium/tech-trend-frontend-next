@@ -57,7 +57,7 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
           onClick={handleToggleFavorite}
           className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-gray-700/90 
                     hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 
-                    shadow-sm hover:shadow-md z-10"
+                    shadow-sm hover:shadow-md z-10 cursor-pointer"
           aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
         >
           <svg

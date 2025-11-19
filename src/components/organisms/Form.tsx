@@ -31,7 +31,7 @@ export const Form = ({
             fullWidth
             disabled={submitButton.disabled}
             isLoading={submitButton.isLoading}
-            className="font-semibold"
+            className="font-semibold cursor-pointer"
         >
             {submitButton.text}
         </Button>

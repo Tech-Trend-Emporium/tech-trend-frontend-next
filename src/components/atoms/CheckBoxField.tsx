@@ -1,7 +1,7 @@
 "use client";
 
 import { Checkbox, Label } from "flowbite-react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 
 interface CheckboxFieldProps {
