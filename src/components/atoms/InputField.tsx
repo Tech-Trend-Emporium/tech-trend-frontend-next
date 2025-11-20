@@ -6,7 +6,9 @@ export interface InputFieldProps {
   label: string;
   name: string;
   type?: string;
-  //value: string;
+  value?: string | number;
+  step?: string;
+  min?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   placeholder?: string;
@@ -17,12 +19,14 @@ export const InputField = ({
   label,
   name,
   type = "text",
-  //value,
+  value,
+  step,
+  min,
   onChange,
   required = true,
   placeholder,
 }: InputFieldProps) => (
-  <div className="mb-5">
+  <div>
     <Label 
       htmlFor={id}
       className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-wide"
@@ -33,7 +37,9 @@ export const InputField = ({
       id={id}
       name={name}
       type={type}
-      
+      step={step}
+      min={min}
+      value={value}
       onChange={onChange}
       required={required}
       placeholder={placeholder || label}

@@ -2,10 +2,11 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { InputField, DropdownField, Form } from "@/src/components";
-import { CreateProductRequest } from "@/src/models";
+import { CreateProductRequest, UpdateProductRequest, ProductResponse } from "@/src/models";
+import { useEffect } from "react";
 
 
-interface CreateProductInputs {
+type BaseInputs = {
     title: string;
     price: number;
     description: string;
@@ -13,60 +14,73 @@ interface CreateProductInputs {
     ratingRate: number;
     count: number;
     category: string;
-}
+};
 
-interface CreateProductFormProps {
-    onSubmit: (data: CreateProductRequest) => void;
-    isLoading: boolean;
-    errorMessage: string | null;
-    categories: string[];
-}
+type Mode = "create" | "edit";
 
-export const CreateProductForm = ({
+export const ProductForm = ({
+    mode,
+    initial,
+    categories,
     onSubmit,
     isLoading,
-    errorMessage,
-    categories
-}: CreateProductFormProps) => {
+    errorMessage
+}: {
+    mode: Mode;
+    initial?: ProductResponse;
+    categories: string[];
+    onSubmit: (payload: CreateProductRequest | UpdateProductRequest) => void;
+    isLoading: boolean;
+    errorMessage: string | null;
+}) => {
     const {
-        control,
-        handleSubmit,
-        formState: { errors, isValid }
-    } = useForm<CreateProductInputs>({
+        control, handleSubmit, reset,
+        formState: { errors, isValid, isDirty }
+    } = useForm<BaseInputs>({
         mode: "onChange",
         defaultValues: {
-            title: "",
-            price: 0,
-            description: "",
-            imageUrl: "",
-            ratingRate: 0,
-            count: 0,
-            category: ""
+            title: initial?.title ?? "",
+            price: initial?.price ?? 0,
+            description: initial?.description ?? "",
+            imageUrl: initial?.imageUrl ?? "",
+            ratingRate: initial?.ratingRate ?? 0,
+            count: initial?.count ?? 0,
+            category: initial?.category ?? ""
         }
     });
 
+    useEffect(() => {
+        if (initial) reset({
+            title: initial.title,
+            price: initial.price,
+            description: initial.description ?? "",
+            imageUrl: initial.imageUrl ?? "",
+            ratingRate: initial.ratingRate ?? 0,
+            count: initial.count ?? 0,
+            category: initial.category
+        });
+    }, [initial, reset]);
+
+    const submitText = mode === "create" ? "Create Product" : "Update Product";
+    const disabled = mode === "create" ? !isValid || isLoading : !isValid || !isDirty || isLoading;
+
     return (
         <Form
-            onSubmit={handleSubmit((formValues) => {
-                const payload: CreateProductRequest = {
-                    title: formValues.title,
-                    price: formValues.price,
-                    description: formValues.description || null,
-                    imageUrl: formValues.imageUrl || null,
-                    ratingRate: formValues.ratingRate || undefined,
-                    count: formValues.count || undefined,
-                    category: formValues.category
+            onSubmit={handleSubmit((v) => {
+                const payload = {
+                    title: v.title,
+                    price: v.price,
+                    description: v.description || null,
+                    imageUrl: v.imageUrl || null,
+                    ratingRate: v.ratingRate || undefined,
+                    count: v.count || undefined,
+                    category: v.category
                 };
                 onSubmit(payload);
             })}
-            submitButton={{
-                text: "Create Product",
-                disabled: !isValid || isLoading,
-                isLoading,
-                variant: "dark"
-            }}
+            submitButton={{ text: submitText, disabled, isLoading, variant: "dark" }}
             errorMessage={errorMessage}
-            className="space-y-1"
+            className="space-y-5"
         >
             {/* Title */}
             <Controller
@@ -136,8 +150,8 @@ export const CreateProductForm = ({
                         message: "The field Category must be between 3 and 120 characters long."
                     },
                     pattern: {
-                        value: /^[a-zA-Z0-9\s\-\.\,&]+$/,
-                        message: "The field Category can only contain letters, numbers, spaces, and the following characters: - . , &"
+                        value: /^[a-zA-Z0-9\s\-\.\,&']+$/,
+                        message: "The field Category can only contain letters, numbers, spaces, hyphens, periods, commas, ampersands, and apostrophes."
                     }
                 }}
                 render={({ field }) => (
@@ -172,6 +186,7 @@ export const CreateProductForm = ({
                             id="description"
                             label="Description (Optional)"
                             placeholder="Enter product description"
+                            required={false}
                         />
                         <p className="text-red-600 text-sm">{errors.description?.message}</p>
                     </>
@@ -199,6 +214,7 @@ export const CreateProductForm = ({
                             id="imageUrl"
                             label="Image URL (Optional)"
                             placeholder="https://example.com/image.jpg"
+                            required={false}
                         />
                         <p className="text-red-600 text-sm">{errors.imageUrl?.message}</p>
                     </>
@@ -227,6 +243,7 @@ export const CreateProductForm = ({
                             label="Rating Rate (Optional)"
                             type="number"
                             placeholder="0.0 - 5.0"
+                            required={false}
                         />
                         <p className="text-red-600 text-sm">{errors.ratingRate?.message}</p>
                     </>
@@ -251,6 +268,7 @@ export const CreateProductForm = ({
                             label="Stock Count (Optional)"
                             type="number"
                             placeholder="0"
+                            required={false}
                         />
                         <p className="text-red-600 text-sm">{errors.count?.message}</p>
                     </>

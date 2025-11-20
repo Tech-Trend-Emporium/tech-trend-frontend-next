@@ -3,31 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { AdminFormTemplate, CategoryForm } from "@/src/components";
-import { CategoryService } from "@/src/services";
-import type { CreateCategoryRequest } from "@/src/models";
+import { AdminFormTemplate } from "@/src/components";
+import { RecoveryQuestionService } from "@/src/services";
+import type { CreateRecoveryQuestionRequest } from "@/src/models";
 import { toastSuccess } from "@/src/lib/toast";
+import { RecoveryQuestionForm } from "@/src/components/organisms/RecoveryQuestionForm";
 
 
-export default function CreateCategoryPage() {
+export default function CreateRecoveryQuestionPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const handleSubmit = async (data: CreateCategoryRequest) => {
+    const handleSubmit = async (data: CreateRecoveryQuestionRequest) => {
         setIsLoading(true);
         setErrorMessage(null);
         try {
-            const res = await CategoryService.create(data);
-            if (res.kind === "accepted") {
-                toastSuccess(res.data.message || "Category creation pending approval");
-            } else {
-                toastSuccess("Category created successfully");
-            }
-            router.push("/admin/categories");
+            await RecoveryQuestionService.create(data);
+            toastSuccess("Recovery question created successfully");
+            router.push("/admin/recovery-questions");
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                setErrorMessage(error.response?.data?.message || "Failed to create category");
+                setErrorMessage(error.response?.data?.message || "Failed to create recovery question");
             } else {
                 setErrorMessage("Unexpected error occurred");
             }
@@ -37,8 +34,8 @@ export default function CreateCategoryPage() {
     };
 
     return (
-        <AdminFormTemplate title="Create Category" onBack={() => router.back()}>
-            <CategoryForm
+        <AdminFormTemplate title="Create Recovery Question" onBack={() => router.back()}>
+            <RecoveryQuestionForm
                 mode="create"
                 onSubmit={handleSubmit}
                 isLoading={isLoading}

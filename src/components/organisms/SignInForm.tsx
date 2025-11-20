@@ -36,7 +36,7 @@ export const SignInForm = ({ onSubmit, isLoading, errorMessage}: SignInFormProps
         variant: "dark",
       }}
       errorMessage={errorMessage}
-      className="space-y-1"
+      className="space-y-5"
     >
       <Controller
         name="emailOrUsername"

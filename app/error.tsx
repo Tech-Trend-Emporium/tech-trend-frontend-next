@@ -6,7 +6,7 @@ import { toastError } from "@/src/lib/toast";
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     useEffect(() => {
-        toastError(error, "Something went wrong globally.");
+        toastError(error, "Something went wrong globally");
     }, [error]);
 
     return (
