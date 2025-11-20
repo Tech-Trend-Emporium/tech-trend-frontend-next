@@ -19,7 +19,7 @@ const loadTopCategories = async (): Promise<UiCategory[]> => {
     const results = await Promise.all(
         page.items.map(async (c) => {
             const p = await ProductService.list({ skip: 0, take: 1, category: c.name });
-            return { name: c.name, productCount: p.total, imageUrl: categoryImage(c.name) };
+            return { id: c.id, name: c.name, productCount: p.total, imageUrl: categoryImage(c.name) };
         })
     );
     

@@ -7,10 +7,18 @@ import { Role } from "./src/models";
 export const proxy = (req: NextRequest) => {
     const { pathname } = req.nextUrl;
     const token = req.cookies.get("token")?.value;
-    const role  = (req.cookies.get("role")?.value ?? "") as Role;
+    const role = (req.cookies.get("role")?.value ?? "") as Role;
+    const hasRt = Boolean(req.cookies.get("refresh_token")?.value);
+
+    if (!token && hasRt) return NextResponse.next();
 
     const redirectTo = checkAccess(pathname, Boolean(token), role);
-    if (redirectTo) return NextResponse.redirect(new URL(redirectTo, req.url));
+    if (redirectTo) {
+        const url = new URL(redirectTo, req.url);
+
+        if (redirectTo === "/sign-in") url.searchParams.set("next", pathname);
+        return NextResponse.redirect(url);
+    }
 
     return NextResponse.next();
 };

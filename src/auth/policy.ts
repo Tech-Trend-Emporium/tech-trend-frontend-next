@@ -6,7 +6,7 @@ export const checkAccess = (pathname: string, isAuthenticated: boolean, role: Ro
 
     if (staffOnly && !isAuthenticated) return "/sign-in";
     if (adminOnly && role !== "ADMIN") return "/forbidden";
-    if (pathname.startsWith("/admin") && !["ADMIN", "EMPLOYEE"].includes(role ?? "")) return "/forbidden";
-
-    return null; 
+    if (pathname.startsWith("/dashboard") && !["ADMIN", "EMPLOYEE"].includes(role ?? "")) return "/forbidden";
+    
+    return null;
 };

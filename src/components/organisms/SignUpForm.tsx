@@ -67,7 +67,7 @@ export const SignUpForm = ({
         variant: "dark",
       }}
       errorMessage={errorMessage}
-      className="space-y-1"
+      className="space-y-5"
     >
 
       {/* Username */}

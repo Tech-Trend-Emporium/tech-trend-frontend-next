@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { setAuth, clearAuth, readFromStorage, setAuthCache } from "@/src/utils";
 import type { AuthState, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse } from "@/src/models";
 import { AuthService } from "@/src/services";
+import { clearSessionCookies, syncSessionCookies } from "../lib/sessionLink";
 
 
 type AuthContextType = {
@@ -31,23 +32,14 @@ export const AuthProvider = ({ children, initialAuth }: { children: React.ReactN
         if (stored?.accessToken) setAuthCache(stored);
     }, []);
 
-    const syncCookies = async (next: AuthState) => {
-        await fetch("/api/session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(next),
-        });
-    };
-    const clearCookies = async () => {
-        await fetch("/api/session", { method: "DELETE" });
-    };
-
     const signIn = useCallback(async (payload: SignInRequest): Promise<SignInResponse> => {
         const data = await AuthService.signIn(payload);
         const next: AuthState = { ...data, isAuthenticated: true };
         setAuthState(next);
         setAuth(next);
-        await syncCookies(next);
+
+        await syncSessionCookies(next);
+        
         return data;
     }, []);
 
@@ -65,7 +57,8 @@ export const AuthProvider = ({ children, initialAuth }: { children: React.ReactN
         const next: AuthState = { ...data, isAuthenticated: true };
         setAuthState(next);
         setAuth(next);
-        await syncCookies(next);
+
+        await syncSessionCookies(next);
 
         return data;
     }, [auth.refreshToken]);
@@ -78,7 +71,8 @@ export const AuthProvider = ({ children, initialAuth }: { children: React.ReactN
         await AuthService.signOut(body);
         clearAuth();
         setAuthState({ isAuthenticated: false });
-        await clearCookies();
+
+        await clearSessionCookies();
     }, [auth.refreshToken]);
 
     const value = useMemo<AuthContextType>(() => ({ auth, signIn, signUp, refresh, signOut }), [auth, signIn, signUp, refresh, signOut]);
