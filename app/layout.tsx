@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ExtraInfoOverNavbar, FooterComponent, NavbarComponent } from "@/src/components";
 import { cookies } from "next/headers";
 import { AppProviders } from "./providers";
-import { Role } from "@/src/models";
+import type { Role } from "@/src/models";
 import "./globals.css";
 
 
@@ -12,13 +12,23 @@ export const metadata: Metadata = {
   description: "Stay Ahead with the Latest in Tech Products and Trends"
 };
 
-export default async function RootLayout ({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
   const currentYear = new Date().getFullYear();
-  const cookieStore = cookies();
-  const initialAuth = {
-    isAuthenticated: Boolean((await cookieStore).get("token")?.value),
-    role: (await cookieStore).get("role")?.value as Role | undefined,
-  };
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const refreshToken = cookieStore.get("refresh_token")?.value;
+  const role = (cookieStore.get("role")?.value as Role) || undefined;
+  const username = cookieStore.get("username")?.value || undefined;
+
+  const initialAuth = token
+    ? {
+        isAuthenticated: true,
+        accessToken: token,
+        refreshToken,
+        role,
+        username,
+      }
+    : { isAuthenticated: false };
 
   return (
     <html lang="en">

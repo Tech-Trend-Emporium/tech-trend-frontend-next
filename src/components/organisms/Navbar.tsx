@@ -4,24 +4,23 @@ import { Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, Button a
 import { Logo, Button } from "../../components/atoms";
 import { SearchBar } from "../molecules";
 import { LogoutButton } from "../atoms/LogoutButton";
-import { useAuth } from "../../auth/AuthProvider";
 import { IoMdCart } from "react-icons/io";
-import { userNameFromToken, roleFromToken } from "../../services";
 import { useRouter } from "next/navigation";
-import { useMounted } from "@/src/hooks/useMounted";
+import { useIdentity, useMounted } from "@/src/hooks";
 
 
 type Props = { cartCount?: number };
 
 export const NavbarComponent = ({ cartCount = 0 }: Props) => {
   const router = useRouter();
-  const { auth } = useAuth();
   const mounted = useMounted();
+  const { isAuthenticated, role, username } = useIdentity();
 
-  const username = mounted ? userNameFromToken(auth) : "";
-  const role = mounted ? roleFromToken(auth) : undefined;
-
-  const showAuthed = mounted && auth.isAuthenticated;
+  const roleLabel =
+    role === "SHOPPER" ? "User" :
+    role === "EMPLOYEE" ? "Employee" :
+    role === "ADMIN" ? "Admin" :
+    "";
 
   return (
     <>
@@ -64,15 +63,16 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
         </NavbarBrand>
 
         <div className="flex md:order-2 items-center gap-2" suppressHydrationWarning>
-          {!showAuthed ? (
+          {!isAuthenticated ? (
             <Button href="/sign-in" variant="outline" size="sm">
               Login
             </Button>
           ) : (
             <>
-              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2">
-                {role === "SHOPPER" ? "User" : role === "EMPLOYEE" ? "Employee" : "Admin"}
-                {username ? ` · ${username}` : ""}
+              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2"
+                suppressHydrationWarning
+              >
+                {roleLabel}{username ? ` · ${username}` : ""}
               </span>
 
               {role === "SHOPPER" && (
@@ -88,10 +88,10 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="hover:opacity-90 hover:bg-blue-800! hover:cursor-pointer"
-                  onClick={() => router.push("/dashboard")}
+                  className="hover:cursor-pointer"
+                  onClick={() => router.push("/admin")}
                 >
-                  Employee Portal
+                  {role === "EMPLOYEE" ? "Employee" : "Admin"} Portal
                 </Button>
               )}
 
@@ -103,14 +103,21 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
 
         <NavbarCollapse>
           <div className="flex items-center gap-4">
-            <NavbarLink href="/favorites">Favorites</NavbarLink>
-            {showAuthed && role === "SHOPPER" && (
+            {isAuthenticated && role === "SHOPPER" && (
               <>
-                <NavbarLink href="#">ShopList</NavbarLink>
-                <NavbarLink href="#">Wishlist</NavbarLink>
+                <NavbarLink href="/favorites">Favorites</NavbarLink>
+                <NavbarLink href="/shoplist">ShopList</NavbarLink>
+                <NavbarLink href="/wishlist">Wishlist</NavbarLink>
+
+                <SearchBar />
               </>
             )}
-            <SearchBar />
+            {mounted && !isAuthenticated && (
+              <>
+                <NavbarLink href="/favorites">Favorites</NavbarLink>
+                <SearchBar />
+              </>
+            )}
           </div>
         </NavbarCollapse>
       </Navbar>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { Form, InputField } from "@/src/components";
 import type { CreateCategoryRequest, UpdateCategoryRequest, CategoryResponse } from "@/src/models";
 
@@ -44,6 +44,8 @@ export const CategoryForm = ({
         ? !isValid || isLoading
         : !isValid || !isDirty || isLoading;
 
+    const nameVal = useWatch({ control, name: "name", defaultValue: initial?.name ?? "" });
+
     return (
         <Form
             onSubmit={handleSubmit(({ name }) => onSubmit({ name }))}
@@ -71,7 +73,10 @@ export const CategoryForm = ({
                             label="Category Name"
                             placeholder="e.g. Electronics"
                         />
-                        <p className="text-red-600 text-sm">{errors.name?.message}</p>
+                        <div className="flex justify-between">
+                            <p className="text-red-600 text-sm">{errors.name?.message}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{nameVal.length}/120</p>
+                        </div>
                     </>
                 )}
             />
