@@ -2,7 +2,7 @@ import Link from "next/link";
 import React from "react";
 
 
-type ButtonVariant = "primary" | "secondary" | "outline" | "danger" | "dark";
+export type ButtonVariant = "primary" | "secondary" | "outline" | "danger" | "dark";
 type ButtonSize = "sm" | "md" | "lg";
 
 type NativeButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;

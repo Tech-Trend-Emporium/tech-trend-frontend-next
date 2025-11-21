@@ -34,11 +34,12 @@ export const useProducts = (params: {
     }, [onNavigate]);
 
     const [cards, setCards] = useState<CardProps[]>([]);
-    const [sortOption, setSortOption] = useState<SortOption>("none");
+    const [sortOption, setSortOption] = useState<SortOption>("Default");
     const [buttonConf, setButtonConf] = useState({
         text: "Show more",
         disabled: false,
         isLoading: false,
+        variant: "outline"
     });
 
     const fetchAndCache = useCallback(async (category?: string) => {
@@ -111,11 +112,11 @@ export const useProducts = (params: {
         }
 
         setCards(sortCards(toCards(nextAll, (id) => onNavigateRef.current(id)), sortOption));
-        setButtonConf({ text: "Show more", disabled: disable, isLoading: false });
+        setButtonConf({ text: "Show more", disabled: disable, isLoading: false, variant: "outline" });
     }, [selectedCategories, fetchAndCache, sortOption]);
 
     const handleSorterSelect = useCallback((value: string) => {
-        const v = (value as SortOption) ?? "none";
+        const v = (value as SortOption) ?? "Default";
         setSortOption(v);
         setCards((prev) => sortCards(prev, v));
     }, []);
