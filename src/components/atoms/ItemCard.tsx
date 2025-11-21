@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { isFavorite, toggleFavorite, onFavoritesChanged } from "@/src/utils";
 
 
-interface CardProps {
+export interface CardProps {
   id: string | number;
   image: string;
   title: string;
