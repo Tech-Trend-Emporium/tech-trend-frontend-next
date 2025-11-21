@@ -1,3 +1,5 @@
+export * from "./ApprovalDecisionModal";
+export * from "./ApprovalJobsTable";
 export * from "./Carousel";
 export * from "./CategoriesTable";
 export * from "./CategoryForm";

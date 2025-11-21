@@ -36,7 +36,7 @@ export default function SignInPage() {
     refresh()
       .then((auth) => {
         const role = auth.role;
-        router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/products");
+        router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/");
       })
       .catch(() => {});
   }, [refresh, router]);
@@ -56,7 +56,7 @@ export default function SignInPage() {
 
       toastSuccess("Signed in successfully");
 
-      router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/products");
+      router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setErrorMessage(

@@ -60,11 +60,7 @@ export const RecoveryQuestionForm = ({
                 rules={{
                     required: "Question is required.",
                     minLength: { value: 1, message: "Question must be between 1 and 2000 characters." },
-                    maxLength: { value: 2000, message: "Question must be between 1 and 2000 characters." },
-                    validate: (v) => {
-                        if (v !== v.trim()) return "Question must not have leading or trailing spaces.";
-                        return true;
-                    }
+                    maxLength: { value: 2000, message: "Question must be between 1 and 2000 characters." }
                 }}
                 render={({ field }) => (
                     <>

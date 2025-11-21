@@ -1,7 +1,10 @@
+import { ApprovalJobType, Operation } from ".";
+
+
 export type ApprovalJobResponseRaw = {
     id: number;
-    type: string;
-    operation: string;
+    type: ApprovalJobType;
+    operation: Operation;
     state: boolean;          
     requestedBy: number;
     decidedBy?: number | null;

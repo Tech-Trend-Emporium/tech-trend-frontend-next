@@ -12,7 +12,7 @@ interface AdminCardProps {
     category: Category;
 }
 
-export const AdminCard = ({ icon: Icon, title, description, href, category }: AdminCardProps) => {
+export const AdminCard: React.FC<AdminCardProps> = ({ icon: Icon, title, description, href, category }) => {
     return (
         <Link
             href={href}

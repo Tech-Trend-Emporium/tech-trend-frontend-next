@@ -167,6 +167,7 @@ export function CouponForm({
                             label="Valid To (Optional)"
                             type="date"
                             min={validFrom || todayYMD}
+                            required={false}
                         />
                         <p className="text-red-600 text-sm">{errors.validTo?.message}</p>
                     </>

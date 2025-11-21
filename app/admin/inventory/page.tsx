@@ -2,7 +2,7 @@
 
 import { InventoryService } from "@/src/services";
 import type { InventoryResponse } from "@/src/models";
-import { InventoryListTemplate, InventoryTable, Pagination } from "@/src/components";
+import { AdminInventoryTemplate, InventoryTable, Pagination } from "@/src/components";
 import { usePaginatedList } from "@/src/hooks/usePaginatedList";
 
 
@@ -11,7 +11,7 @@ export default function InventoryPage() {
         usePaginatedList<InventoryResponse>(InventoryService.list, 10);
 
     return (
-        <InventoryListTemplate title="Inventory">
+        <AdminInventoryTemplate title="Inventory">
             <InventoryTable inventories={inventories} isLoading={loading} />
 
             {!loading && inventories.length > 0 && (
@@ -25,6 +25,6 @@ export default function InventoryPage() {
                     />
                 </div>
             )}
-        </InventoryListTemplate>
+        </AdminInventoryTemplate>
     );
 }

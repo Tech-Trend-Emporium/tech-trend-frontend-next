@@ -1,19 +1,12 @@
-import { Button } from "../";
+"use client";
 
-
-interface AdminListTemplateProps {
-    title: string;
-    entityName: string;
-    onCreateClick: () => void;
-    children: React.ReactNode;
-}
-
-export const AdminListTemplate = ({
+export const AdminInventoryTemplate = ({
     title,
-    entityName,
-    onCreateClick,
     children
-}: AdminListTemplateProps) => {
+}: {
+    title: string;
+    children: React.ReactNode;
+}) => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
             <div className="max-w-7xl mx-auto">
@@ -22,9 +15,6 @@ export const AdminListTemplate = ({
                     <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
                         {title}
                     </h1>
-                    <Button variant="outline" onClick={onCreateClick}>
-                        + Create {entityName}
-                    </Button>
                 </div>
 
                 {/* Content */}
