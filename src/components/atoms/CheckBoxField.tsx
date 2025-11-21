@@ -11,7 +11,7 @@ export interface CheckboxFieldProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const CheckboxField = ({ id, label, name, checked, onChange}: CheckboxFieldProps) => {
+export const CheckboxField = ({ id, label, checked, onChange}: CheckboxFieldProps) => {
   return(
   <div className="flex items-center gap-3 mb-6 group">
     <Checkbox 

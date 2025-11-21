@@ -1,6 +1,4 @@
-import { CheckboxField } from "../atoms/CheckBoxField";
-import type { CheckboxFieldProps } from "../atoms/CheckBoxField";
-
+import { CheckboxField, CheckboxFieldProps } from "..";
 
 
 interface ChecklistProps {

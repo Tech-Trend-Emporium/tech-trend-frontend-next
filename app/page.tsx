@@ -31,6 +31,7 @@ export default function HomePage() {
               ))
             : topCategories.map((c) => (
                 <ItemCard
+                  id={c.name}
                   key={c.name}
                   image={c.imageUrl}
                   title={c.name}
@@ -56,6 +57,7 @@ export default function HomePage() {
               ))
             : latest.map((p) => (
                 <ItemCard
+                  id={p.id}
                   key={p.id}
                   image={p.imageUrl}
                   title={p.title}
@@ -81,6 +83,7 @@ export default function HomePage() {
               ))
             : bestSelling.map((p) => (
                 <ItemCard
+                  id={p.id}
                   key={p.id}
                   image={p.imageUrl}
                   title={p.title}

@@ -5,19 +5,26 @@ let _authCache: any = null;
 export const getAuth = () => _authCache;
 export const setAuthCache = (v: any) => { _authCache = v; };
 
-export const storageKey = "auth";
+export const authStorageKey = "auth";
 
 export const readFromStorage = () => {
-    try { return JSON.parse(localStorage.getItem(storageKey) || "null"); }
-    catch { return null; }
+    try { 
+        return JSON.parse(localStorage.getItem(authStorageKey) || "null"); 
+    } catch { 
+        return null; 
+    }
 };
 
 export const writeToStorage = (value: any) => {
-    try { localStorage.setItem(storageKey, JSON.stringify(value)); } catch {}
+    try { 
+        localStorage.setItem(authStorageKey, JSON.stringify(value)); 
+    } catch {}
 };
 
 export const clearStorage = () => {
-    try { localStorage.removeItem(storageKey); } catch {}
+    try { 
+        localStorage.removeItem(authStorageKey); 
+    } catch {}
 };
 
 export const clearAuth = () => {

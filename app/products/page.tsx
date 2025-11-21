@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { FilterSorter } from "@/src/components/organisms/FilterSorterV1";
-import { CardProps } from "@/src/components";
+import { CardProps, FilterSorter } from "@/src/components";
 import { CategoryService, ProductService } from "@/src/services"; 
 import { ProductResponse } from "@/src/models";
-import { getCachedData, saveCache } from "../../src/utils/cachedData";
-import { mapdProducts} from "../../src/utils/produtsTools";
+import { getCachedData, saveCache } from "../../src/utils/categoryStorage";
+import { mapProducts } from "../../src/utils/productsTool";
 import { useRouter } from "next/navigation";
-import router from "next/router";
+
 
 interface filterFieldProps {
   id: string,
@@ -31,29 +30,27 @@ export default function ProductPage() {
 
   const take = 6;
 
-  const sortProducts = (items: CardProps[], option: string) => {
-  switch (option) {
-    case "A to Z":
-      return [...items].sort((a, b) => a.title.localeCompare(b.title));
+  const sortProducts = useCallback((items: CardProps[], option: string) => {
+    switch (option) {
+      case "A to Z":
+        return [...items].sort((a, b) => a.title.localeCompare(b.title));
 
-    case "Z to A":
-      return [...items].sort((a, b) => b.title.localeCompare(a.title));
+      case "Z to A":
+        return [...items].sort((a, b) => b.title.localeCompare(a.title));
 
-    case "Price asc":
-      return [...items].sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+      case "Price asc":
+        return [...items].sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
 
-    case "Price desc":
-      return [...items].sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+      case "Price desc":
+        return [...items].sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
 
-    case "none":
-    default:
-      return items; 
-  }
-};
+      case "none":
+      default:
+        return items; 
+    }
+  }, []);
 
-
-
-  const fetchProducts = async (category?: string) => {
+  const fetchProducts = useCallback(async (category?: string) => {
     const cached = getCachedData(category);
 
     const response = await ProductService.list({
@@ -70,10 +67,9 @@ export default function ProductPage() {
     saveCache(category, updated);
 
     return { newProducts: response.items, fullData: updated };
-  };
+  }, [take]);
 
   const applyCategoryFilter = useCallback(async () => {
-
     if (selectedCategories.length === 0) {
       let cached = getCachedData(undefined);
 
@@ -83,7 +79,7 @@ export default function ProductPage() {
       }
 
       setProducts(
-      sortProducts(mapdProducts(cached.products), sortOption).map((p) => ({...p,onClick: () => router.push(`/products/${p.id}`)})));
+      sortProducts(mapProducts(cached.products), sortOption).map((p) => ({...p,onClick: () => router.push(`/products/${p.id}`)})));
     }
     else {
     let combined: ProductResponse[] = [];
@@ -100,13 +96,21 @@ export default function ProductPage() {
     }
     
     setProducts(
-    sortProducts(mapdProducts(combined), sortOption).map((p) => ({...p,onClick: () => router.push(`/products/${p.id}`)})));
+    sortProducts(mapProducts(combined), sortOption).map((p) => ({...p,onClick: () => router.push(`/products/${p.id}`)})));
   }
     setButtonConf((prev) => ({ ...prev, disabled: false }));
-  }, [selectedCategories]);
+  }, [selectedCategories, sortOption, router, fetchProducts, sortProducts]);
 
   useEffect(() => {
-    applyCategoryFilter();
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        applyCategoryFilter();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [applyCategoryFilter]);
 
   const handleShowMore = async () => {
@@ -132,7 +136,7 @@ export default function ProductPage() {
     }
 
     setProducts(
-    sortProducts(mapdProducts(combined), sortOption).map((p) => ({...p,onClick: () => router.push(`/products/${p.id}`)})));
+    sortProducts(mapProducts(combined), sortOption).map((p) => ({...p,onClick: () => router.push(`/products/${p.id}`)})));
 
     setButtonConf({
       text: "Show more",
@@ -154,8 +158,17 @@ export default function ProductPage() {
       console.log(err);
     }
   } 
+  
   useEffect(() => {
-    loadCategories();
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        loadCategories();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleCheckChange = (id: string, checked: boolean) => {
@@ -175,7 +188,6 @@ export default function ProductPage() {
   setSortOption(value);
   
   setProducts((prev) => sortProducts(prev, value));
-  
 };
 
 
@@ -196,6 +208,3 @@ export default function ProductPage() {
     />
   );
 }
-
-
-//Dummy comment to git detec changes

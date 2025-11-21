@@ -1,5 +1,5 @@
 import { http } from "../lib/http";
-import type { ApprovalJobResponse, ApprovalJobResponseRaw, DecideApprovalJobRequest, SubmitApprovalJobRequest } from "../models";
+import type { ApprovalJobResponse, ApprovalJobResponseRaw, DecideApprovalJobRequest } from "../models";
 
 
 const BASE = "/ApprovalJob";
@@ -11,10 +11,6 @@ const mapApprovalJob = (j: ApprovalJobResponseRaw): ApprovalJobResponse => ({
 });
 
 export const ApprovalJobService = {
-    submit: (payload: SubmitApprovalJobRequest) => {
-        return http.post<ApprovalJobResponseRaw>(`${ BASE }`, payload).then(r => mapApprovalJob(r.data));
-    },
-
     listPending: (params?: { skip?: number; take?: number }) => {
         return http.get<ApprovalJobResponseRaw[]>(`${ BASE }/pending`, {
                         params: { skip: params?.skip ?? 0, take: params?.take ?? 50 },

@@ -1,4 +1,4 @@
-export function levenshtein(a: string, b: string): number {
+export const levenshtein = (a: string, b: string): number => {
   const m = a.length;
   const n = b.length;
 
@@ -23,4 +23,4 @@ export function levenshtein(a: string, b: string): number {
   }
 
   return dp[m][n];
-}
+};

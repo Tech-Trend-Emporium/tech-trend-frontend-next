@@ -1,9 +1,9 @@
 "use client";
 
 import { useForm, Controller } from "react-hook-form";
-import { InputField, DropdownField } from "../atoms";
-import { Form } from ".";
+import { InputField, DropdownField, Form } from "../";
 import { SignUpRequest } from "@/src/models";
+
 
 interface SignUpInputs {
   username: string;
@@ -67,7 +67,7 @@ export const SignUpForm = ({
         variant: "dark",
       }}
       errorMessage={errorMessage}
-      className="space-y-1"
+      className="space-y-5"
     >
 
       {/* Username */}

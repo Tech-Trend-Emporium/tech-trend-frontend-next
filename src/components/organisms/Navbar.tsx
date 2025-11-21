@@ -4,23 +4,23 @@ import { Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, Button a
 import { Logo, Button } from "../../components/atoms";
 import { SearchBar } from "../molecules";
 import { LogoutButton } from "../atoms/LogoutButton";
-import { useAuth } from "../../auth/AuthProvider";
 import { IoMdCart } from "react-icons/io";
-import { userNameFromToken, roleFromToken } from "../../services";
 import { useRouter } from "next/navigation";
-import { searchBarTools } from "@/src/hooks/searchHandler";
-
-
+import { useIdentity, useMounted } from "@/src/hooks";
 
 
 type Props = { cartCount?: number };
 
 export const NavbarComponent = ({ cartCount = 0 }: Props) => {
   const router = useRouter();
-  const { auth } = useAuth();
-  const username = userNameFromToken(auth);
-  const role = roleFromToken(auth);
-  const { handleSearchChange, handleSearchSubmit, handleSuggestionClick, searchValue, suggestions } = searchBarTools();
+  const mounted = useMounted();
+  const { isAuthenticated, role, username } = useIdentity();
+
+  const roleLabel =
+    role === "SHOPPER" ? "User" :
+    role === "EMPLOYEE" ? "Employee" :
+    role === "ADMIN" ? "Admin" :
+    "";
 
   return (
     <>
@@ -52,31 +52,30 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
           background-color: rgb(55, 65, 81) !important;
         }
       `}</style>
-      
-      <Navbar fluid className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2.5">
+
+      <Navbar fluid className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2.5">
         <NavbarBrand href="/">
-          {/* Dark logo */}
-          <Logo className="mr-3 w-9 h-6 sm:h-9 hidden dark:block " text="white" />
-          {/* Light logo */}
-          <Logo className="mr-3 w-9 h-6 sm:h-9 block dark:hidden " text="black" />
+          <Logo className="mr-3 w-9 h-6 sm:h-9 hidden dark:block" text="white" />
+          <Logo className="mr-3 w-9 h-6 sm:h-9 block dark:hidden" text="black" />
           <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
             Tech Trend Emporium
           </span>
         </NavbarBrand>
 
-        <div className="flex md:order-2 items-center gap-2">
-          {!auth.isAuthenticated ? (
+        <div className="flex md:order-2 items-center gap-2" suppressHydrationWarning>
+          {!isAuthenticated ? (
             <Button href="/sign-in" variant="outline" size="sm">
               Login
             </Button>
           ) : (
             <>
-              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2">
-                {role === "SHOPPER" ? "User" : role === "EMPLOYEE" ? "Employee" : "Admin"}
-                {username ? ` · ${username}` : ""}
+              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2"
+                suppressHydrationWarning
+              >
+                {roleLabel}{username ? ` · ${username}` : ""}
               </span>
 
-              {role === 'SHOPPER' && (
+              {role === "SHOPPER" && (
                 <FBButton pill color="gray" size="sm" className="relative hover:cursor-pointer">
                   <IoMdCart className="h-4 w-4" />
                   <Badge className="absolute -top-1.5 -right-1.5 text-[0.75rem] leading-none rounded-full px-1.5 py-1 bg-blue-600 text-white">
@@ -85,16 +84,16 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
                 </FBButton>
               )}
 
-            {(role === 'EMPLOYEE' || role === 'ADMIN') && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="hover:opacity-90 hover:bg-blue-800! hover:cursor-pointer"
-                onClick={() => (router.push("/dashboard"))}
-              >
-                Employee Portal
-              </Button>
-            )}
+              {(role === "EMPLOYEE" || role === "ADMIN") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hover:cursor-pointer"
+                  onClick={() => router.push("/admin")}
+                >
+                  {role === "EMPLOYEE" ? "Employee" : "Admin"} Portal
+                </Button>
+              )}
 
               <LogoutButton />
             </>
@@ -104,29 +103,21 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
 
         <NavbarCollapse>
           <div className="flex items-center gap-4">
-            <NavbarLink href="#">ShopList</NavbarLink>
-            <NavbarLink href="#">Wishlist</NavbarLink>
-            <span className="relative w-full max-w-xs">
-              <SearchBar 
-                placeholder="Search products"
-                value={searchValue}
-                onChange={handleSearchChange}
-                onSubmit={handleSearchSubmit}
-              />
-              {suggestions.length > 0 && (
-                <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md">
-                  {suggestions.map((s) => (
-                    <li
-                      key={s.id}
-                      className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                      onClick={() => handleSuggestionClick(s.id)}
-                    >
-                      {s.title}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </span>
+            {isAuthenticated && role === "SHOPPER" && (
+              <>
+                <NavbarLink href="/favorites">Favorites</NavbarLink>
+                <NavbarLink href="/shoplist">ShopList</NavbarLink>
+                <NavbarLink href="/wishlist">Wishlist</NavbarLink>
+
+                <SearchBar />
+              </>
+            )}
+            {mounted && !isAuthenticated && (
+              <>
+                <NavbarLink href="/favorites">Favorites</NavbarLink>
+                <SearchBar />
+              </>
+            )}
           </div>
         </NavbarCollapse>
       </Navbar>

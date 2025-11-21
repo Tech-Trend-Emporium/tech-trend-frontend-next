@@ -1,4 +1,5 @@
-import { ItemCard, type CardProps } from "../atoms/ItemCard";
+import { CardProps, ItemCard } from "../";
+
 
 export interface ItemGridProps {
   itemCardsData: CardProps[]

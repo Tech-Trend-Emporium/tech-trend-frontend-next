@@ -1,7 +1,5 @@
-import { Checklist } from "../molecules/checklist";
-import { DropdownField } from "../atoms/DropDownField";
-import { Button, type CardProps, type CheckboxFieldProps } from "../atoms";
-import { ItemGrid } from "../molecules/CardsGrid";
+import { Button, CardProps, CheckboxFieldProps, Checklist, DropdownField, ItemGrid } from "../";
+
 
 interface filterSorterProps {
   filterItems: CheckboxFieldProps[];
@@ -32,7 +30,6 @@ export const FilterSorter = ({
   label,
   options,
   selected,
-  errorMessage,
   handleSelect,
   onClick,
   required,
@@ -51,7 +48,7 @@ export const FilterSorter = ({
     </p>
 
     <div className="flex flex-col lg:flex-row gap-10">
-      <aside className="flex-shrink-0 lg:w-auto">
+      <aside className="shrink-0 lg:w-auto">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Filter</h2>
         <Checklist items={filterItems} />
       </aside>

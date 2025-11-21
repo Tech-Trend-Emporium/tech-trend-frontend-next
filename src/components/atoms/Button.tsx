@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 
@@ -74,9 +75,9 @@ export const Button: React.FC<ButtonProps> = ({
   // ✅ Render an <a> if href is provided, otherwise a <button>
   if (href) {
     return (
-      <a href={href} className={combinedClassName} {...anchorProps}>
+      <Link href={href} className={combinedClassName} {...anchorProps}>
         {isLoading ? loadingText : children}
-      </a>
+      </Link>
     );
   }
 

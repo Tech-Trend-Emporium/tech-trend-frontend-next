@@ -1,13 +1,15 @@
 "use client";
 
-import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useAuth } from "@/src/auth";
 import { AuthTemplate, SignInForm } from "@/src/components";
 import { SignInRequest } from "@/src/models";
-import { useAuth, AuthProvider } from "@/src/auth";
-import { SubmitHandler } from "react-hook-form";
-import { useEffect, useState } from "react";
+import Link from "next/link";
 import { readFromStorage } from "@/src/utils";
+import { toastSuccess } from "@/src/lib/toast";
+
 
 interface SignInInputs {
   emailOrUsername: string;
@@ -22,19 +24,24 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-      const promise = refresh();
-      promise.then((auth) => {
-        const role = auth.role;
-        if (role === "ADMIN" || role === "EMPLOYEE") {
-          router.push("/admin");
-        } else {
-          router.push("/products");
-        }
-      }).catch ((Error) => console.log(Error))
-  },[]);
+  const triedRef = useRef(false);
 
-  const handleSubmit: SubmitHandler<SignInInputs> = async (data) => {
+  useEffect(() => {
+    if (triedRef.current) return;
+    triedRef.current = true;
+
+    const stored = readFromStorage?.();
+    if (!stored?.refreshToken || stored?.accessToken) return;
+
+    refresh()
+      .then((auth) => {
+        const role = auth.role;
+        router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/");
+      })
+      .catch(() => {});
+  }, [refresh, router]);
+
+  const handleSubmit = async (data: SignInInputs) => {
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -47,21 +54,17 @@ export default function SignInPage() {
       const auth = await signIn(payload);
       const role = auth.role;
 
+      toastSuccess("Signed in successfully");
 
-      if (role === "ADMIN" || role === "EMPLOYEE") {
-        router.push("/admin");
-      } else {
-        router.push("/products");
-      }
+      router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setErrorMessage(
-          error.response?.status === 401
-            ? "Wrong credentials."
-            : "Logging in error."
-        );
+          error.response?.status === 401 
+            ? "Wrong credentials" 
+            : "Sign in failed");
       } else {
-        setErrorMessage("Unexpected error.");
+        setErrorMessage("Unexpected error occurred");
       }
     } finally {
       setIsLoading(false);
@@ -74,8 +77,18 @@ export default function SignInPage() {
         Sign In
       </h2>
 
-      <SignInForm onSubmit={handleSubmit} isLoading={isLoading} errorMessage={errorMessage}/>
-      <p className="text-center">Or create a new <span className="text-cyan-500 hover:underline"><a href="/sign-up">account</a></span></p>
+      <SignInForm 
+        onSubmit={handleSubmit} 
+        isLoading={isLoading} 
+        errorMessage={errorMessage} 
+      />
+      
+      <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 text-center mt-3">
+        Or create a new&nbsp;
+        <span className="text-slate-500 dark:text-slate-400">
+          <Link className="hover:underline" href="/sign-up">account</Link>
+        </span>
+      </p>
     </AuthTemplate>
   );
 }
