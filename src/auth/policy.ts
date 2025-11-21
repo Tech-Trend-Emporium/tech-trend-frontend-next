@@ -1,12 +1,14 @@
-export type Role = "ADMIN" | "EMPLOYEE" | "SHOPPER" | undefined;
+import { Role } from "../models";
+
 
 export const checkAccess = (pathname: string, isAuthenticated: boolean, role: Role) => {
     const adminEmployeeOnly = pathname.startsWith("/admin");
-    const staffOnly = adminEmployeeOnly || pathname.startsWith("/dashboard");
-
-    if (staffOnly && !isAuthenticated) return "/sign-in";
+    const shopperOnly = pathname.startsWith("/shoplist") || pathname.startsWith("/wishlist") || pathname.startsWith("/favorites");
+    
+    if (adminEmployeeOnly && !isAuthenticated ) return "/sign-in";
     if (adminEmployeeOnly && (role !== "ADMIN" && role !== "EMPLOYEE")) return "/forbidden";
-    if (pathname.startsWith("/dashboard") && !["ADMIN", "EMPLOYEE"].includes(role ?? "")) return "/forbidden";
+    if (shopperOnly && !isAuthenticated) return "/sign-in";
+    if (shopperOnly && role !== "SHOPPER") return "/forbidden";
     
     return null;
 };

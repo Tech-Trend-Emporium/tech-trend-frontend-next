@@ -46,7 +46,7 @@ export const useSearchBar = () => {
     if (!value.trim()) return;
 
     try {
-      const result = await ProductService.getName(value); 
+      const result = await ProductService.getByName(value); 
 
       if (!result) {
         return;

@@ -44,12 +44,11 @@ export default function FavoritesPage() {
                 {/* Header */}
                 {favoriteProducts.length !== 0 && (
                     <div className="text-center mb-12">
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                             Favorites
                         </h1>
                         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                            Here are the products you&apos;ve added to your favorites list.
                         </p>
                         <Button variant="outline" className="mt-6 hover:cursor-pointer">
                             Shop All

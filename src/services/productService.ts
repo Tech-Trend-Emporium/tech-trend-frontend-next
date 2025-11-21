@@ -19,11 +19,11 @@ const mapApprovalJob = (j: ApprovalJobResponseRaw): ApprovalJobResponse => ({
 
 export const ProductService = {
     getById: (id: number) => {
-        return http.get<ProductResponseRaw>(`${BASE}/by_id/${id}`).then(r => mapProduct(r.data));
+        return http.get<ProductResponseRaw>(`${BASE}/${id}`).then(r => mapProduct(r.data));
     },
 
-    getName: (name: string) => {
-        return http.get<ProductResponseRaw>(`${BASE}/by-name/${name}`).then(r => mapProduct(r.data));
+    getByName: (name: string) => {
+        return http.get<ProductResponseRaw>(`${BASE}/${name}`).then(r => mapProduct(r.data));
     },
 
     list: (opts?: { skip?: number; take?: number; category?: string | null }): Promise<Page<ProductResponse>> => {
