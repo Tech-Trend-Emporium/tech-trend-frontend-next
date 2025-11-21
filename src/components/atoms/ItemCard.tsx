@@ -1,17 +1,22 @@
+"use client";
 import Image from "next/image";
 
 
-interface CardProps {
+export interface CardProps {
+  id?: number;
   image: string;
   title: string;
   price?: number; 
   ctaText?: string;
+  onClick?: () => void;
 }
 
-export const ItemCard = ({ image, title, price, ctaText }: CardProps) => {
+export const ItemCard = ({ image, title, price, ctaText, onClick }: CardProps) => {
   const isPriceVisible = typeof price === "number" && !Number.isNaN(price);
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
+    <div
+    onClick={onClick}
+     className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
                   hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700">
       <div className="relative w-full h-48 p-2">
         <Image

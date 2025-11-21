@@ -50,7 +50,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       ].join(" ")}
     >
       {/* Left icon (decorative) */}
-      <FaMagnifyingGlass className="text-slate-300" aria-hidden="true" />
+      <button type="submit" className="text-slate-300" >
+        <FaMagnifyingGlass />
+      </button>
 
       {/* Accessible label for screen readers */}
       <label htmlFor={inputId} className="sr-only">
@@ -66,7 +68,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         onChange={(e) => setV(e.target.value)}
         className={[
           "w-full bg-transparent",
-          "border-0 p-0 text-white",
+          "border-0 p-0 text-black dark:text-white",
           "focus:ring-0 focus:outline-none",
           "placeholder:text-slate-400 dark:placeholder:text-slate-500",
           inputClassName,

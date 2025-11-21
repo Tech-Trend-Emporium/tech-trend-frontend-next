@@ -1,24 +1,24 @@
 "use client";
 
 import { Checkbox, Label } from "flowbite-react";
-import { useForm, SubmitHandler } from "react-hook-form";
 
 
-interface CheckboxFieldProps {
+export interface CheckboxFieldProps {
   id: string;
   label: string;
   name: string;
-  //checked: boolean;
-  //onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  checked?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const CheckboxField = ({ id, label, name}: CheckboxFieldProps) => {
-  const {register} = useForm();
+export const CheckboxField = ({ id, label, name, checked, onChange}: CheckboxFieldProps) => {
   return(
   <div className="flex items-center gap-3 mb-6 group">
     <Checkbox 
-      id={id} 
-      {...register(name)}
+      id={id}
+      checked={checked} 
+      onChange={onChange}
+      
       className="w-4 h-4 text-slate-600 bg-gray-100 border-gray-300 rounded focus:ring-slate-500 dark:focus:ring-slate-400 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer transition-all duration-200"
     />
     <Label 
