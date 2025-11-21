@@ -6,7 +6,7 @@ import { SearchBar } from "../molecules";
 import { LogoutButton } from "../atoms/LogoutButton";
 import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { useIdentity, useMounted } from "@/src/hooks";
+import { useIdentity, useMounted, useSearchBar } from "@/src/hooks";
 
 
 type Props = { cartCount?: number };
@@ -15,6 +15,7 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
   const router = useRouter();
   const mounted = useMounted();
   const { isAuthenticated, role, username } = useIdentity();
+  const { handleSearchChange, handleSearchSubmit, handleSuggestionClick, searchValue, suggestions } = useSearchBar();
 
   const roleLabel =
     role === "SHOPPER" ? "User" :
@@ -106,16 +107,57 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
             {isAuthenticated && role === "SHOPPER" && (
               <>
                 <NavbarLink href="/favorites">Favorites</NavbarLink>
-                <NavbarLink href="/shoplist">ShopList</NavbarLink>
+                <NavbarLink href="/shoplist">Shoplist</NavbarLink>
                 <NavbarLink href="/wishlist">Wishlist</NavbarLink>
 
-                <SearchBar />
+                <span className="relative w-full max-w-xs">
+                  <SearchBar 
+                    placeholder="Search products"
+                    value={searchValue}
+                    onChange={handleSearchChange}
+                    onSubmit={handleSearchSubmit}
+                  />
+                  {suggestions.length > 0 && (
+                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md">
+                      {suggestions.map((s) => (
+                        <li
+                          key={s.id}
+                          className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                          onClick={() => handleSuggestionClick(s.id)}
+                        >
+                          {s.title}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </span>
               </>
             )}
             {mounted && !isAuthenticated && (
               <>
                 <NavbarLink href="/favorites">Favorites</NavbarLink>
-                <SearchBar />
+
+                <span className="relative w-full max-w-xs">
+                  <SearchBar 
+                    placeholder="Search products"
+                    value={searchValue}
+                    onChange={handleSearchChange}
+                    onSubmit={handleSearchSubmit}
+                  />
+                  {suggestions.length > 0 && (
+                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md">
+                      {suggestions.map((s) => (
+                        <li
+                          key={s.id}
+                          className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                          onClick={() => handleSuggestionClick(s.id)}
+                        >
+                          {s.title}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </span>
               </>
             )}
           </div>
