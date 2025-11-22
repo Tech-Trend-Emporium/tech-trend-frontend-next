@@ -1,21 +1,18 @@
 "use client";
 
 import { Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, Button as FBButton, Badge } from "flowbite-react";
-import { Logo, Button } from "../../components/atoms";
-import { SearchBar } from "../molecules";
-import { LogoutButton } from "../atoms/LogoutButton";
+import { Logo, Button, LogoutButton, SearchBar } from "../../components";
 import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { useIdentity, useMounted, useSearchBar } from "@/src/hooks";
+import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
 
 
-type Props = { cartCount?: number };
-
-export const NavbarComponent = ({ cartCount = 0 }: Props) => {
+export const NavbarComponent = () => {
   const router = useRouter();
   const mounted = useMounted();
   const { isAuthenticated, role, username } = useIdentity();
   const { handleSearchChange, handleSearchSubmit, handleSuggestionClick, searchValue, suggestions } = useSearchBar();
+  const { itemCount } = useCart();
 
   const roleLabel =
     role === "SHOPPER" ? "User" :
@@ -70,18 +67,24 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
             </Button>
           ) : (
             <>
-              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2"
-                suppressHydrationWarning
-              >
+              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2" suppressHydrationWarning>
                 {roleLabel}{username ? ` · ${username}` : ""}
               </span>
 
               {role === "SHOPPER" && (
-                <FBButton pill color="gray" size="sm" className="relative hover:cursor-pointer">
+                <FBButton
+                  pill
+                  color="gray"
+                  size="sm"
+                  className="relative hover:cursor-pointer"
+                  onClick={() => router.push("/cart")}
+                >
                   <IoMdCart className="h-4 w-4" />
-                  <Badge className="absolute -top-1.5 -right-1.5 text-[0.75rem] leading-none rounded-full px-1.5 py-1 bg-blue-600 text-white">
-                    {cartCount}
-                  </Badge>
+                  {itemCount > 0 && (
+                    <Badge className="absolute -top-1.5 -right-1.5 text-[0.75rem] leading-none rounded-full px-1.5 py-1 bg-blue-600 text-white">
+                      {itemCount > 99 ? "99+" : itemCount}
+                    </Badge>
+                  )}
                 </FBButton>
               )}
 
@@ -103,12 +106,13 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
         </div>
 
         <NavbarCollapse>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center text-center gap-4">
             {isAuthenticated && role === "SHOPPER" && (
               <>
                 <NavbarLink href="/favorites">Favorites</NavbarLink>
                 <NavbarLink href="/shoplist">Shoplist</NavbarLink>
                 <NavbarLink href="/wishlist">Wishlist</NavbarLink>
+                <NavbarLink href="/cart/orders">My Orders</NavbarLink>
 
                 <span className="relative w-full max-w-xs">
                   <SearchBar 
@@ -118,7 +122,7 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
                     onSubmit={handleSearchSubmit}
                   />
                   {suggestions.length > 0 && (
-                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md">
+                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
                       {suggestions.map((s) => (
                         <li
                           key={s.id}
@@ -145,7 +149,7 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
                     onSubmit={handleSearchSubmit}
                   />
                   {suggestions.length > 0 && (
-                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md">
+                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
                       {suggestions.map((s) => (
                         <li
                           key={s.id}
