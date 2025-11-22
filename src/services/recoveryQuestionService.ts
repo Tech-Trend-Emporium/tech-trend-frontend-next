@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { CreateRecoveryQuestionRequest, Page, RecoveryQuestionResponse, RecoveryQuestionResponseRaw, UpdateRecoveryQuestionRequest } from "../models";
+import { http } from "@/src/lib";
+import type { CreateRecoveryQuestionRequest, Page, RecoveryQuestionResponse, RecoveryQuestionResponseRaw, UpdateRecoveryQuestionRequest } from "@/src/models";
 
 
 const BASE = "/RecoveryQuestion";

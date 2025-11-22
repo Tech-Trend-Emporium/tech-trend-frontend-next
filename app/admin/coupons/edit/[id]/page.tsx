@@ -6,7 +6,7 @@ import axios from "axios";
 import { AdminFormTemplate, CouponForm } from "@/src/components";
 import { CouponService } from "@/src/services";
 import type { UpdateCouponRequest, CouponResponse } from "@/src/models";
-import { toastError, toastSuccess } from "@/src/lib/toast";
+import { toastError, toastSuccess } from "@/src/lib";
 
 
 export default function EditCouponPage() {

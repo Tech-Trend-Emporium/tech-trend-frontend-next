@@ -3,12 +3,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProductService } from "@/src/services";
 import { ProductResponse } from "@/src/models";
-import { CardProps } from "@/src/components";
-import { sortCards, SortOption } from "../lib/sorter";
-import { getCachedData, saveCache, toCards } from "../utils";
+import { ButtonVariant, CardProps } from "@/src/components";
+import { sortCards, SortOption } from "@/src/lib";
+import { getCachedData, saveCache, toCards } from "@/src/utils";
 
 
 const TAKE = 6 as const;
+
+interface UseProductsReturn {
+    cards: CardProps[];
+    sortOption: SortOption;
+    buttonConf: {
+        text: string;
+        disabled: boolean;
+        isLoading: boolean;
+        variant: ButtonVariant;
+    };
+    handleSorterSelect: (value: string) => void;
+    handleShowMore: () => Promise<void>;
+}
 
 const mergeUniqueById = (arrays: ProductResponse[][]): ProductResponse[] => {
     const seen = new Set<string>();
@@ -26,7 +39,7 @@ const mergeUniqueById = (arrays: ProductResponse[][]): ProductResponse[] => {
 export const useProducts = (params: {
     selectedCategories: string[];
     onNavigate: (id: string) => void;
-}) => {
+}): UseProductsReturn => {
     const { selectedCategories, onNavigate } = params;
     const onNavigateRef = useRef(onNavigate);
     useEffect(() => {
@@ -35,7 +48,12 @@ export const useProducts = (params: {
 
     const [cards, setCards] = useState<CardProps[]>([]);
     const [sortOption, setSortOption] = useState<SortOption>("Default");
-    const [buttonConf, setButtonConf] = useState({
+    const [buttonConf, setButtonConf] = useState<{
+        text: string;
+        disabled: boolean;
+        isLoading: boolean;
+        variant: ButtonVariant;
+    }>({
         text: "Show more",
         disabled: false,
         isLoading: false,

@@ -3,8 +3,7 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ButtonVariant, FilterSorter } from "@/src/components";
-import { useCategories } from "@/src/hooks/useCategories";
-import { useProducts } from "@/src/hooks/useProducts";
+import { useCategories, useProducts } from "@/src/hooks";
 
 
 export default function ProductPage() {
@@ -12,7 +11,7 @@ export default function ProductPage() {
   const { checklistItems, selectedCategories } = useCategories();
 
   const onNavigate = useCallback((id: string) => {
-    router.push(`/products/${id}`);
+    router.push(`/shoplist/${id}`);
   }, [router]);
 
   const {

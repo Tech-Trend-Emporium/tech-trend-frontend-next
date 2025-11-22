@@ -1,27 +1,24 @@
 "use client";
 
 import { Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, Button as FBButton, Badge } from "flowbite-react";
-import { Logo, Button } from "../../components/atoms";
-import { SearchBar } from "../molecules";
-import { LogoutButton } from "../atoms/LogoutButton";
+import { Logo, Button, LogoutButton, SearchBar } from "@/src/components";
 import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { useIdentity, useMounted, useSearchBar } from "@/src/hooks";
+import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
+import React from "react";
 
 
-type Props = { cartCount?: number };
-
-export const NavbarComponent = ({ cartCount = 0 }: Props) => {
+export const NavbarComponent = () => {
   const router = useRouter();
-  const mounted = useMounted();
+  const { mounted } = useMounted();
   const { isAuthenticated, role, username } = useIdentity();
   const { handleSearchChange, handleSearchSubmit, handleSuggestionClick, searchValue, suggestions } = useSearchBar();
+  const { itemCount } = useCart();
 
   const roleLabel =
     role === "SHOPPER" ? "User" :
     role === "EMPLOYEE" ? "Employee" :
-    role === "ADMIN" ? "Admin" :
-    "";
+    role === "ADMIN" ? "Admin" : "";
 
   return (
     <>
@@ -52,6 +49,17 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
         .dark .cart-button:hover {
           background-color: rgb(55, 65, 81) !important;
         }
+
+        [data-testid="flowbite-navbar-collapse"] > ul {
+          display: flex;              
+          align-items: center;        
+        }
+
+        [data-testid="flowbite-navbar-collapse"] > ul > li {
+          display: flex;
+          align-items: center;
+          text-align: center;
+        }
       `}</style>
 
       <Navbar fluid className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2.5">
@@ -63,25 +71,33 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
           </span>
         </NavbarBrand>
 
-        <div className="flex md:order-2 items-center gap-2" suppressHydrationWarning>
-          {!isAuthenticated ? (
-            <Button href="/sign-in" variant="outline" size="sm">
+        <div className="flex md:order-2 items-center gap-2">
+          {!mounted ? (
+            <div className="h-6 w-24 rounded bg-gray-200 dark:bg-gray-700" aria-hidden />
+          ) : !isAuthenticated ? (
+            <Button href="/auth/sign-in" variant="outline" size="sm">
               Login
             </Button>
           ) : (
             <>
-              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2"
-                suppressHydrationWarning
-              >
+              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2">
                 {roleLabel}{username ? ` · ${username}` : ""}
               </span>
 
-              {role === "SHOPPER" && (
-                <FBButton pill color="gray" size="sm" className="relative hover:cursor-pointer">
+              {mounted && role === "SHOPPER" && (
+                <FBButton
+                  pill
+                  color="gray"
+                  size="sm"
+                  className="relative hover:cursor-pointer"
+                  onClick={() => router.push("/cart")}
+                >
                   <IoMdCart className="h-4 w-4" />
-                  <Badge className="absolute -top-1.5 -right-1.5 text-[0.75rem] leading-none rounded-full px-1.5 py-1 bg-blue-600 text-white">
-                    {cartCount}
-                  </Badge>
+                  {itemCount > 0 && (
+                    <Badge className="absolute -top-1.5 -right-1.5 text-[0.75rem] leading-none rounded-full px-1.5 py-1 bg-blue-600 text-white">
+                      {itemCount > 99 ? "99+" : itemCount}
+                    </Badge>
+                  )}
                 </FBButton>
               )}
 
@@ -103,64 +119,64 @@ export const NavbarComponent = ({ cartCount = 0 }: Props) => {
         </div>
 
         <NavbarCollapse>
-          <div className="flex items-center gap-4">
-            {isAuthenticated && role === "SHOPPER" && (
-              <>
-                <NavbarLink href="/favorites">Favorites</NavbarLink>
-                <NavbarLink href="/shoplist">Shoplist</NavbarLink>
-                <NavbarLink href="/wishlist">Wishlist</NavbarLink>
+          {mounted && isAuthenticated && role === "SHOPPER" && (
+            <>
+              <NavbarLink href="/favorites">Favorites</NavbarLink>
+              <NavbarLink href="/shoplist">Shoplist</NavbarLink>
+              <NavbarLink href="/wishlist">Wishlist</NavbarLink>
+              <NavbarLink href="/cart/orders">My Orders</NavbarLink>
 
-                <span className="relative w-full max-w-xs">
-                  <SearchBar 
-                    placeholder="Search products"
-                    value={searchValue}
-                    onChange={handleSearchChange}
-                    onSubmit={handleSearchSubmit}
-                  />
-                  {suggestions.length > 0 && (
-                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md">
-                      {suggestions.map((s) => (
-                        <li
-                          key={s.id}
-                          className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                          onClick={() => handleSuggestionClick(s.id)}
-                        >
-                          {s.title}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </span>
-              </>
-            )}
-            {mounted && !isAuthenticated && (
-              <>
-                <NavbarLink href="/favorites">Favorites</NavbarLink>
+              <li className="relative w-full max-w-xs list-none">
+                <SearchBar
+                  placeholder="Search products"
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  onSubmit={handleSearchSubmit}
+                />
+                {suggestions.length > 0 && (
+                  <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
+                    {suggestions.map((s) => (
+                      <li
+                        key={s.id}
+                        className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                        onClick={() => handleSuggestionClick(s.id)}
+                      >
+                        {s.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            </>
+          )}
 
-                <span className="relative w-full max-w-xs">
-                  <SearchBar 
-                    placeholder="Search products"
-                    value={searchValue}
-                    onChange={handleSearchChange}
-                    onSubmit={handleSearchSubmit}
-                  />
-                  {suggestions.length > 0 && (
-                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md">
-                      {suggestions.map((s) => (
-                        <li
-                          key={s.id}
-                          className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                          onClick={() => handleSuggestionClick(s.id)}
-                        >
-                          {s.title}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </span>
-              </>
-            )}
-          </div>
+          {mounted && !isAuthenticated && (
+            <>
+              <NavbarLink href="/favorites">Favorites</NavbarLink>
+
+              <li className="relative w-full max-w-xs list-none">
+                <SearchBar
+                  placeholder="Search products"
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  onSubmit={handleSearchSubmit}
+                />
+                {suggestions.length > 0 && (
+                  <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
+                    {suggestions.map((s) => (
+                      <li
+                        key={s.id}
+                        className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                        onClick={() => handleSuggestionClick(s.id)}
+                      >
+                        {s.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            </>
+          )}
         </NavbarCollapse>
       </Navbar>
     </>

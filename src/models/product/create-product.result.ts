@@ -1,4 +1,4 @@
-import type { ApprovalJobResponse, ProductResponse } from "../";
+import type { ApprovalJobResponse, ProductResponse } from "@/src/models";
 
 
 export type CreateProductResult =

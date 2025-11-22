@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UserService } from "@/src/services";
 import type { UserResponse } from "@/src/models";
-import { toastSuccess, toastError } from "@/src/lib/toast";
+import { toastSuccess, toastError } from "@/src/lib";
 import { AdminListTemplate, ConfirmModal, Pagination, UsersTable } from "@/src/components";
-import { usePaginatedList } from "@/src/hooks/usePaginatedList";
+import { usePaginatedList } from "@/src/hooks";
 
 
 export default function UsersListPage() {

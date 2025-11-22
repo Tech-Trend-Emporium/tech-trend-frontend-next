@@ -16,7 +16,7 @@ export const proxy = (req: NextRequest) => {
     if (redirectTo) {
         const url = new URL(redirectTo, req.url);
 
-        if (redirectTo === "/sign-in") url.searchParams.set("next", pathname);
+        if (redirectTo === "/auth/sign-in") url.searchParams.set("next", pathname);
         return NextResponse.redirect(url);
     }
 

@@ -1,4 +1,4 @@
-import { Role } from "../models";
+import { Role } from "@/src/models";
 
 
 const USERNAME_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";

@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { InventoryResponse, InventoryResponseRaw, Page } from "../models";
+import { http } from "@/src/lib";
+import type { InventoryResponse, InventoryResponseRaw, Page } from "@/src/models";
 
 
 const BASE = "/Inventory";

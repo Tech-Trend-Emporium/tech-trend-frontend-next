@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { AddWishListItemRequest, WishListItemResponse, WishListItemResponseRaw, WishListResponse, WishListResponseRaw } from "../models";
+import { http } from "@/src/lib";
+import type { AddWishListItemRequest, WishListItemResponse, WishListItemResponseRaw, WishListResponse, WishListResponseRaw } from "@/src/models";
 
 
 const BASE = "/WishList";

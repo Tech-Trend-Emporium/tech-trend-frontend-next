@@ -3,7 +3,7 @@
 import { InventoryService } from "@/src/services";
 import type { InventoryResponse } from "@/src/models";
 import { AdminInventoryTemplate, InventoryTable, Pagination } from "@/src/components";
-import { usePaginatedList } from "@/src/hooks/usePaginatedList";
+import { usePaginatedList } from "@/src/hooks";
 
 
 export default function InventoryPage() {

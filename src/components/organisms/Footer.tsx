@@ -1,5 +1,5 @@
 import { Footer, FooterCopyright, FooterDivider, FooterLink, FooterLinkGroup } from "flowbite-react";
-import { FooterBrand } from "../molecules";
+import { FooterBrand } from "@/src/components";
 
 
 export const FooterComponent = ({ currentYear }: { currentYear: number }) => {
