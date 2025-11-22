@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { InputField, DropdownField, Form } from "@/src/components";
 import { SignUpRequest } from "@/src/models";
 
@@ -31,7 +31,6 @@ export const SignUpForm = ({
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors, isValid }
   } = useForm<SignUpInputs>({
     mode: "onChange",
@@ -44,8 +43,8 @@ export const SignUpForm = ({
       securityAnswer: ""
     }
   });
-
-  const passwordValue = watch("password");
+  
+  const passwordValue = useWatch({ control, name: "password" });
 
   return (
     <Form
@@ -173,5 +172,3 @@ export const SignUpForm = ({
     </Form>
   );
 };
-
-//A

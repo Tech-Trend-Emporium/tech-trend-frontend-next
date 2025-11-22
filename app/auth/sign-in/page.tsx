@@ -1,75 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { useAuth } from "@/src/auth";
-import { AuthTemplate, SignInForm } from "@/src/components";
-import { SignInRequest } from "@/src/models";
 import Link from "next/link";
-import { readFromStorage } from "@/src/utils";
-import { toastSuccess } from "@/src/lib";
+import { AuthTemplate, SignInForm } from "@/src/components";
+import { useSignIn } from "@/src/hooks";
 
-
-interface SignInInputs {
-  emailOrUsername: string;
-  password: string;
-  rememberMe: boolean;
-}
 
 export default function SignInPage() {
-  const router = useRouter();
-  const { signIn, refresh } = useAuth();
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const triedRef = useRef(false);
-
-  useEffect(() => {
-    if (triedRef.current) return;
-    triedRef.current = true;
-
-    const stored = readFromStorage?.();
-    if (!stored?.refreshToken || stored?.accessToken) return;
-
-    refresh()
-      .then((auth) => {
-        const role = auth.role;
-        router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/shoplist");
-      })
-      .catch(() => {});
-  }, [refresh, router]);
-
-  const handleSubmit = async (data: SignInInputs) => {
-    setIsLoading(true);
-    setErrorMessage(null);
-
-    try {
-      const payload: SignInRequest = {
-        emailOrUsername: data.emailOrUsername,
-        password: data.password,
-      };
-
-      const auth = await signIn(payload);
-      const role = auth.role;
-
-      toastSuccess("Signed in successfully");
-
-      router.replace(role === "ADMIN" || role === "EMPLOYEE" ? "/admin" : "/shoplist");
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.status === 401 
-            ? "Wrong credentials" 
-            : "Sign in failed");
-      } else {
-        setErrorMessage("Unexpected error occurred");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { isLoading, errorMessage, handleSubmit } = useSignIn();
 
   return (
     <AuthTemplate imageSrc="/icon.png" imageAlt="Sign in illustration">
@@ -77,16 +14,38 @@ export default function SignInPage() {
         Sign In
       </h2>
 
-      <SignInForm 
-        onSubmit={handleSubmit} 
-        isLoading={isLoading} 
-        errorMessage={errorMessage} 
+      <SignInForm
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        errorMessage={errorMessage}
       />
-      
-      <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 text-center mt-3">
-        Or create a new&nbsp;
+
+      <div className="text-center mt-4">
+        <Link
+          href="/auth/forgot-password"
+          className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:underline transition-colors"
+        >
+          Forgot your password?
+        </Link>
+      </div>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+            or
+          </span>
+        </div>
+      </div>
+
+      <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 text-center">
+        Don&apos;t have an account?&nbsp;
         <span className="text-slate-500 dark:text-slate-400">
-          <Link className="hover:underline" href="/auth/sign-up">account</Link>
+          <Link className="hover:underline" href="/auth/sign-up">
+            Create one
+          </Link>
         </span>
       </p>
     </AuthTemplate>

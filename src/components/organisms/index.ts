@@ -16,6 +16,8 @@ export * from "./ProductsTable";
 export * from "./ProductForm";
 export * from "./RecoveryQuestionForm";
 export * from "./RecoveryQuestionsTable";
+export * from "./RecoveryVerifyForm";
+export * from "./ResetPasswordForm";
 export * from "./SignInForm";
 export * from "./SignUpForm";
 export * from "./UserForm";
