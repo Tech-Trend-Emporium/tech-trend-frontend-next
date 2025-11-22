@@ -8,7 +8,7 @@ import { AuthTemplate, SignInForm } from "@/src/components";
 import { SignInRequest } from "@/src/models";
 import Link from "next/link";
 import { readFromStorage } from "@/src/utils";
-import { toastSuccess } from "@/src/lib/toast";
+import { toastSuccess } from "@/src/lib";
 
 
 interface SignInInputs {
@@ -86,7 +86,7 @@ export default function SignInPage() {
       <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 text-center mt-3">
         Or create a new&nbsp;
         <span className="text-slate-500 dark:text-slate-400">
-          <Link className="hover:underline" href="/sign-up">account</Link>
+          <Link className="hover:underline" href="/auth/sign-up">account</Link>
         </span>
       </p>
     </AuthTemplate>

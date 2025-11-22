@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Button, FavoriteButton, QuantitySelector } from "../";
+import { Button, FavoriteButton, QuantitySelector } from "@/src/components";
 import { FiShare2 } from "react-icons/fi";
 
 

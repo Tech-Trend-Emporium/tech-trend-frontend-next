@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, Controller } from "react-hook-form";
-import { InputField, DropdownField, Form } from "../";
+import { InputField, DropdownField, Form } from "@/src/components";
 import { SignUpRequest } from "@/src/models";
 
 

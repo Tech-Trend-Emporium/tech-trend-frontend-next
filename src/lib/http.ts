@@ -2,8 +2,8 @@
 "use client";
 
 import axios, { AxiosError } from "axios";
-import { clearAuth, getAuth, setAuth } from "../utils";
-import { toastError } from "./toast";
+import { clearAuth, getAuth, setAuth } from "@/src/utils";
+import { toastError } from "@/src/lib";
 
 
 declare module "axios" {

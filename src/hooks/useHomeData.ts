@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CategoryService, ProductService } from "../services";
-import { swcGet } from "../lib/swcCache";
-import { categoryImage } from "../lib/imagePlaceholder";
+import { CategoryService, ProductService } from "@/src/services";
+import { swcGet, categoryImage } from "@/src/lib";
 
 
 export type UiCategory = { name: string; productCount: number; imageUrl: string };

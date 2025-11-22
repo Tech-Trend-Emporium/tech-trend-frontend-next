@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { ApprovalAcceptedResponseRaw, ApprovalJobResponse, ApprovalJobResponseRaw, CategoryResponse, CategoryResponseRaw, CreateCategoryRequest, CreateCategoryResult, DeleteCategoryResult, Page, UpdateCategoryRequest } from "../models";
+import { http } from "@/src/lib";
+import type { ApprovalAcceptedResponseRaw, ApprovalJobResponse, ApprovalJobResponseRaw, CategoryResponse, CategoryResponseRaw, CreateCategoryRequest, CreateCategoryResult, DeleteCategoryResult, Page, UpdateCategoryRequest } from "@/src/models";
 
 
 const BASE = "/Category";

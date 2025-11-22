@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { ApprovalJobService } from "@/src/services";
 import type { ApprovalJobResponse } from "@/src/models";
-import { toastError, toastSuccess } from "@/src/lib/toast";
+import { toastError, toastSuccess } from "@/src/lib";
 import { ApprovalDecisionModal, ApprovalJobsTable, AdminInventoryTemplate } from "@/src/components";
 
 

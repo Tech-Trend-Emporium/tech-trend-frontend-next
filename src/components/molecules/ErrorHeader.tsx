@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { ErrorCode, ErrorIcon } from "../atoms";
+import { ErrorCode, ErrorIcon } from "@/src/components";
 
 
 interface ErrorHeaderProps {

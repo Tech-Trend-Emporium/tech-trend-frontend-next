@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ExtraInfoOverNavbar, FooterComponent, NavbarComponent } from "@/src/components";
 import { cookies } from "next/headers";
-import { AppProviders } from "./providers";
+import { AppProviders } from "@/app/providers";
 import type { Role } from "@/src/models";
-import "./globals.css";
+import "@/app/globals.css";
 
 
 export const metadata: Metadata = {

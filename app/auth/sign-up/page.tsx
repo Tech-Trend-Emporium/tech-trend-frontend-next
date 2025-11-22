@@ -8,7 +8,7 @@ import { RecoveryQuestionService } from "@/src/services";
 import { AuthTemplate, SignUpForm } from "@/src/components";
 import type { SignUpRequest } from "@/src/models";
 import Link from "next/link";
-import { toastSuccess } from "@/src/lib/toast";
+import { toastSuccess } from "@/src/lib";
 
 
 export default function SignUpPage() {

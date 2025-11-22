@@ -6,7 +6,7 @@ import axios from "axios";
 import { AdminFormTemplate, UserForm } from "@/src/components";
 import { UserService } from "@/src/services";
 import type { CreateUserRequest } from "@/src/models";
-import { toastSuccess } from "@/src/lib/toast";
+import { toastSuccess } from "@/src/lib";
 
 
 export default function CreateUserPage() {

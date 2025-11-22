@@ -8,3 +8,4 @@ export * from "./usePaginatedList";
 export * from "./useProductDetail";
 export * from "./useProducts";
 export * from "./useSearchBar";
+export * from "./useWishList";

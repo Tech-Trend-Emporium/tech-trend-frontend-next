@@ -3,11 +3,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCachedData, levenshtein } from "../utils";
-import { ProductService } from "../services";
+import { getCachedData, levenshtein } from "@/src/utils";
+import { ProductService } from "@/src/services";
 
 
-export const useSearchBar = () => {
+interface UseSearchBarReturn {
+  handleSearchChange: (value: string) => void;
+  handleSearchSubmit: (value: string) => void;
+  handleSuggestionClick: (id: string) => void;
+  suggestions: { title: string; id: string; distance: number }[];
+  searchValue: string;
+}
+
+export const useSearchBar = (): UseSearchBarReturn => {
     const router = useRouter();
     const [searchValue, setSearchValue] = useState("");
     const [suggestions, setSuggestions] = useState<

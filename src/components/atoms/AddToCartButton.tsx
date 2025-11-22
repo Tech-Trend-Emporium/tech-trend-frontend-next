@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useCart } from "@/src/hooks/useCart";
+import { useCart } from "@/src/hooks";
 
 
 interface AddToCartButtonProps {

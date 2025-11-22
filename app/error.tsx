@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { toastError } from "@/src/lib/toast";
+import { toastError } from "@/src/lib";
 
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {

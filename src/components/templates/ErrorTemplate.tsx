@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { ErrorActions, ErrorHeader } from "../molecules";
+import { ErrorActions, ErrorHeader } from "@/src/components";
 
 
 interface ErrorTemplateProps {
