@@ -12,7 +12,7 @@ export default function ProductPage() {
   const { checklistItems, selectedCategories } = useCategories();
 
   const onNavigate = useCallback((id: string) => {
-    router.push(`/products/${id}`);
+    router.push(`/shoplist/${id}`);
   }, [router]);
 
   const {

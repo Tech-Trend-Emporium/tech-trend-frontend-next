@@ -11,3 +11,4 @@ export * from "./FavoriteButton";
 export * from "./InputField";
 export * from "./Logo";
 export * from "./LogoutButton";
+export * from "./QuantitySelector";

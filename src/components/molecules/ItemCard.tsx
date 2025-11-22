@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { AddToCartButton, FavoriteButton } from "../";
 import { useAuth } from "@/src/auth";
+import { useRouter } from "next/navigation";
 
 
 export interface CardProps {
@@ -17,13 +18,19 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
   const isPriceVisible = typeof price === "number" && !Number.isNaN(price);
   const isProduct = isPriceVisible;
   const { auth } = useAuth();
+  const router = useRouter();
 
   const numericId = typeof id === "string" ? parseInt(id, 10) : id;
   const isValidId = typeof numericId === "number" && !isNaN(numericId);
 
   return (
-    <div className="flex flex-col justify-center items-center p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
-                    hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative">
+    <div className={`flex flex-col justify-center items-center p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
+                    hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative ${ isProduct && auth.isAuthenticated ? 'hover:cursor-pointer' : '' }`} 
+          onClick={() => {
+            if (isProduct && isValidId) {
+              router.push(`/shoplist/${numericId}`);
+            }
+          }}>
 
       {/* Action Buttons */}
       {isProduct && isValidId && (
