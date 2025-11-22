@@ -1,6 +1,7 @@
 export interface WishListItemResponseRaw {
     productId: number;
-    productName: string;
-    price: number;
+    name: string;
+    imageUrl: string;
+    unitPrice: number;
     addedAt: string;
 }

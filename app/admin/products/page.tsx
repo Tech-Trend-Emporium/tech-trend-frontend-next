@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { toastSuccess, toastError } from "@/src/lib/toast";
+import { toastSuccess, toastError } from "@/src/lib";
 import { AdminListTemplate, ConfirmModal, Pagination, ProductsTable } from "@/src/components";
 import { useState } from "react";
 import { ProductService } from "@/src/services";
 import { ProductResponse, DeleteProductResult } from "@/src/models";
-import { usePaginatedList } from "@/src/hooks/usePaginatedList";
+import { usePaginatedList } from "@/src/hooks";
 import axios from "axios";
 
 

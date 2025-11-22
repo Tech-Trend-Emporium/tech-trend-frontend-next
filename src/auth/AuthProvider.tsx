@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { setAuth, clearAuth, readFromStorage, setAuthCache } from "@/src/utils";
 import type { AuthState, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse } from "@/src/models";
 import { AuthService } from "@/src/services";
-import { clearSessionCookies, syncSessionCookies } from "../lib/sessionLink";
+import { clearSessionCookies, syncSessionCookies } from "@/src/lib";
 
 
 type AuthContextType = {

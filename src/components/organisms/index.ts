@@ -11,6 +11,7 @@ export * from "./Footer";
 export * from "./Form";
 export * from "./InventoryTable";
 export * from "./Navbar";
+export * from "./OrdersTable";
 export * from "./ProductsTable";
 export * from "./ProductForm";
 export * from "./RecoveryQuestionForm";

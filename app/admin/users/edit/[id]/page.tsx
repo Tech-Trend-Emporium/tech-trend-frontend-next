@@ -6,7 +6,7 @@ import axios from "axios";
 import { AdminFormTemplate, UserForm } from "@/src/components";
 import { UserService } from "@/src/services";
 import type { UpdateUserRequest, UserResponse } from "@/src/models";
-import { toastError, toastSuccess } from "@/src/lib/toast";
+import { toastError, toastSuccess } from "@/src/lib";
 
 
 export default function EditUserPage() {

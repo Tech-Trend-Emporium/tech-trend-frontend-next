@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckboxField, InputField, Form } from "../";
+import { CheckboxField, InputField, Form } from "@/src/components";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 
 

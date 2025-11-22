@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { AdminFormTemplate } from "@/src/components";
+import { AdminFormTemplate, RecoveryQuestionForm } from "@/src/components";
 import { RecoveryQuestionService } from "@/src/services";
 import type { UpdateRecoveryQuestionRequest, RecoveryQuestionResponse } from "@/src/models";
-import { toastError, toastSuccess } from "@/src/lib/toast";
-import { RecoveryQuestionForm } from "@/src/components/organisms/RecoveryQuestionForm";
+import { toastError, toastSuccess } from "@/src/lib";
 
 
 export default function EditRecoveryQuestionPage() {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { AdminFormTemplate, ProductForm } from "@/src/components";
 import { CategoryService, ProductService } from "@/src/services";
 import { CategoryResponse, UpdateProductRequest, ProductResponse } from "@/src/models";
-import { toastSuccess, toastError } from "@/src/lib/toast";
+import { toastSuccess, toastError } from "@/src/lib";
 import axios from "axios";
 
 

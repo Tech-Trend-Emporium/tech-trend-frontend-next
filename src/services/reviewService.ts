@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { CreateReviewRequest, Page, ReviewResponse, ReviewResponseRaw, UpdateReviewRequest } from "../models";
+import { http } from "@/src/lib";
+import type { CreateReviewRequest, Page, ReviewResponse, ReviewResponseRaw, UpdateReviewRequest } from "@/src/models";
 
 
 const BASE = "/Review";

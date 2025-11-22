@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-export const useMounted = () => {
+
+interface UseMountedReturn {
+    mounted: boolean;
+}
+
+export const useMounted = (): UseMountedReturn => {
     const [mounted, setMounted] = useState(false);
     
     useEffect(() => {
@@ -10,5 +15,5 @@ export const useMounted = () => {
         return () => clearTimeout(id);
     }, []);
 
-    return mounted;
+    return { mounted };
 };

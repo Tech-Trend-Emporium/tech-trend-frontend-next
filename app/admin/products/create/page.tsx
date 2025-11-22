@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AdminFormTemplate, ProductForm } from "@/src/components";
 import { CategoryService, ProductService } from "@/src/services";
 import { CategoryResponse, CreateProductRequest } from "@/src/models";
-import { toastSuccess, toastError } from "@/src/lib/toast";
+import { toastSuccess, toastError } from "@/src/lib";
 import axios from "axios";
 
 

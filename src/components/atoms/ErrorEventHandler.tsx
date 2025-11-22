@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { toastError } from "@/src/lib/toast";
+import { toastError } from "@/src/lib";
 
 
 export const ErrorEventHandler = () => {

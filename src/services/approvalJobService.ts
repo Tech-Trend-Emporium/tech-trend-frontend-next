@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { ApprovalJobResponse, ApprovalJobResponseRaw, DecideApprovalJobRequest } from "../models";
+import { http } from "@/src/lib";
+import type { ApprovalJobResponse, ApprovalJobResponseRaw, DecideApprovalJobRequest } from "@/src/models";
 
 
 const BASE = "/ApprovalJob";

@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { CreateUserRequest, Page, UpdateUserRequest, UserResponse, UserResponseRaw } from "../models";
+import { http } from "@/src/lib";
+import type { CreateUserRequest, Page, UpdateUserRequest, UserResponse, UserResponseRaw } from "@/src/models";
 
 
 const BASE = "/User";

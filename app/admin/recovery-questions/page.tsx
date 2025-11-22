@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { RecoveryQuestionService } from "@/src/services";
 import type { RecoveryQuestionResponse } from "@/src/models";
-import { toastSuccess, toastError } from "@/src/lib/toast";
-import { AdminListTemplate, ConfirmModal, Pagination } from "@/src/components";
-import { usePaginatedList } from "@/src/hooks/usePaginatedList";
-import { RecoveryQuestionsTable } from "@/src/components/organisms/RecoveryQuestionsTable";
+import { toastSuccess, toastError } from "@/src/lib";
+import { AdminListTemplate, ConfirmModal, Pagination, RecoveryQuestionsTable } from "@/src/components";
+import { usePaginatedList } from "@/src/hooks";
 
 
 export default function RecoveryQuestionsListPage() {
