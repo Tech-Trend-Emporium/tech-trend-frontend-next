@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { AddToCartButton, FavoriteButton } from "../";
+import { useAuth } from "@/src/auth";
 
 
 export interface CardProps {
@@ -15,6 +16,7 @@ export interface CardProps {
 export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
   const isPriceVisible = typeof price === "number" && !Number.isNaN(price);
   const isProduct = isPriceVisible;
+  const { auth } = useAuth();
 
   const numericId = typeof id === "string" ? parseInt(id, 10) : id;
   const isValidId = typeof numericId === "number" && !isNaN(numericId);
@@ -27,7 +29,10 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
       {isProduct && isValidId && (
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
           <FavoriteButton productId={numericId} />
-          <AddToCartButton productId={numericId} variant="card" />
+
+          {auth.isAuthenticated && (
+            <AddToCartButton productId={numericId} variant="card" />
+          )}
         </div>
       )}
 
