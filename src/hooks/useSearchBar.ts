@@ -52,14 +52,14 @@ export const useSearchBar = () => {
         return;
       }
 
-      //router.push(`/products/${result.id}`);
+      //router.push(`/shoplist/${result.id}`);
     } catch (error) {
       console.error("Search API error:", error);
-      //router.push("/products/not-found");
+      //router.push("/shoplist/not-found");
     }
   };
     const handleSuggestionClick = (id: string) => {
-      router.push(`/products/${id}`);
+      router.push(`/shoplist/${id}`);
     };
     
     return { handleSuggestionClick, handleSearchSubmit, handleSearchChange, suggestions, searchValue};

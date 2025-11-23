@@ -8,4 +8,5 @@ export * from "./ErrorHeader";
 export * from "./FooterBrand";
 export * from "./ItemCard";
 export * from "./Pagination";
+export * from "./ProductDetail";
 export * from "./SearchBar";
