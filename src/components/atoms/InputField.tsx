@@ -12,6 +12,7 @@ export interface InputFieldProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export const InputField = ({
@@ -25,6 +26,7 @@ export const InputField = ({
   onChange,
   required = true,
   placeholder,
+  disabled = false,
 }: InputFieldProps) => (
   <div>
     <Label 
@@ -48,6 +50,7 @@ export const InputField = ({
       style={{
         backgroundColor: 'transparent'
       }}
+      disabled={disabled}
       theme={{
         field: {
           input: {

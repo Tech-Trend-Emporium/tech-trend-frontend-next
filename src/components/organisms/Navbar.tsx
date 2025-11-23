@@ -5,6 +5,7 @@ import { Logo, Button, LogoutButton, SearchBar } from "@/src/components";
 import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
+import React from "react";
 
 
 export const NavbarComponent = () => {
@@ -17,8 +18,7 @@ export const NavbarComponent = () => {
   const roleLabel =
     role === "SHOPPER" ? "User" :
     role === "EMPLOYEE" ? "Employee" :
-    role === "ADMIN" ? "Admin" :
-    "";
+    role === "ADMIN" ? "Admin" : "";
 
   return (
     <>
@@ -49,6 +49,17 @@ export const NavbarComponent = () => {
         .dark .cart-button:hover {
           background-color: rgb(55, 65, 81) !important;
         }
+
+        [data-testid="flowbite-navbar-collapse"] > ul {
+          display: flex;              
+          align-items: center;        
+        }
+
+        [data-testid="flowbite-navbar-collapse"] > ul > li {
+          display: flex;
+          align-items: center;
+          text-align: center;
+        }
       `}</style>
 
       <Navbar fluid className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2.5">
@@ -73,7 +84,7 @@ export const NavbarComponent = () => {
                 {roleLabel}{username ? ` · ${username}` : ""}
               </span>
 
-              {role === "SHOPPER" && (
+              {mounted && role === "SHOPPER" && (
                 <FBButton
                   pill
                   color="gray"
@@ -108,65 +119,64 @@ export const NavbarComponent = () => {
         </div>
 
         <NavbarCollapse>
-          <div className="flex items-center justify-center text-center gap-4">
-            {isAuthenticated && role === "SHOPPER" && (
-              <>
-                <NavbarLink href="/favorites">Favorites</NavbarLink>
-                <NavbarLink href="/shoplist">Shoplist</NavbarLink>
-                <NavbarLink href="/wishlist">Wishlist</NavbarLink>
-                <NavbarLink href="/cart/orders">My Orders</NavbarLink>
+          {mounted && isAuthenticated && role === "SHOPPER" && (
+            <>
+              <NavbarLink href="/favorites">Favorites</NavbarLink>
+              <NavbarLink href="/shoplist">Shoplist</NavbarLink>
+              <NavbarLink href="/wishlist">Wishlist</NavbarLink>
+              <NavbarLink href="/cart/orders">My Orders</NavbarLink>
 
-                <span className="relative w-full max-w-xs">
-                  <SearchBar 
-                    placeholder="Search products"
-                    value={searchValue}
-                    onChange={handleSearchChange}
-                    onSubmit={handleSearchSubmit}
-                  />
-                  {suggestions.length > 0 && (
-                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
-                      {suggestions.map((s) => (
-                        <li
-                          key={s.id}
-                          className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                          onClick={() => handleSuggestionClick(s.id)}
-                        >
-                          {s.title}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </span>
-              </>
-            )}
-            {mounted && !isAuthenticated && (
-              <>
-                <NavbarLink href="/favorites">Favorites</NavbarLink>
+              <li className="relative w-full max-w-xs list-none">
+                <SearchBar
+                  placeholder="Search products"
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  onSubmit={handleSearchSubmit}
+                />
+                {suggestions.length > 0 && (
+                  <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
+                    {suggestions.map((s) => (
+                      <li
+                        key={s.id}
+                        className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                        onClick={() => handleSuggestionClick(s.id)}
+                      >
+                        {s.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            </>
+          )}
 
-                <span className="relative w-full max-w-xs">
-                  <SearchBar 
-                    placeholder="Search products"
-                    value={searchValue}
-                    onChange={handleSearchChange}
-                    onSubmit={handleSearchSubmit}
-                  />
-                  {suggestions.length > 0 && (
-                    <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
-                      {suggestions.map((s) => (
-                        <li
-                          key={s.id}
-                          className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                          onClick={() => handleSuggestionClick(s.id)}
-                        >
-                          {s.title}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </span>
-              </>
-            )}
-          </div>
+          {mounted && !isAuthenticated && (
+            <>
+              <NavbarLink href="/favorites">Favorites</NavbarLink>
+
+              <li className="relative w-full max-w-xs list-none">
+                <SearchBar
+                  placeholder="Search products"
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  onSubmit={handleSearchSubmit}
+                />
+                {suggestions.length > 0 && (
+                  <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
+                    {suggestions.map((s) => (
+                      <li
+                        key={s.id}
+                        className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                        onClick={() => handleSuggestionClick(s.id)}
+                      >
+                        {s.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            </>
+          )}
         </NavbarCollapse>
       </Navbar>
     </>
