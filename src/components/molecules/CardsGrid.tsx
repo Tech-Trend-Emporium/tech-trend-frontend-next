@@ -1,4 +1,4 @@
-import { CardProps, ItemCard } from "../";
+import { CardProps, ItemCard } from "@/src/components";
 
 
 export interface ItemGridProps {

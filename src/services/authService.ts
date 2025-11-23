@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { RefreshTokenRequest, ResetPasswordRequest, SetRecoveryInfoRequest, SignInRequest, SignInResponse, SignInResponseRaw, SignOutRequest, SignUpRequest, SignUpResponse, SignUpResponseRaw, VerifyRecoveryAnswerRequest, VerifyRecoveryAnswerResponse, VerifyRecoveryAnswerResponseRaw } from "../models";
+import { http } from "@/src/lib";
+import type { RefreshTokenRequest, ResetPasswordRequest, SetRecoveryInfoRequest, SignInRequest, SignInResponse, SignInResponseRaw, SignOutRequest, SignUpRequest, SignUpResponse, SignUpResponseRaw, VerifyRecoveryAnswerRequest, VerifyRecoveryAnswerResponse, VerifyRecoveryAnswerResponseRaw } from "@/src/models";
 
 
 const BASE = "/Auth"

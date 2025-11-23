@@ -1,4 +1,4 @@
-import { Button } from "../atoms";
+import { Button } from "@/src/components";
 import type { ReactNode } from "react";
 
 

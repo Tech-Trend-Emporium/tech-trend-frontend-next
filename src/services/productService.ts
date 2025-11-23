@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { http } from "../lib/http";
-import type { ApprovalJobResponse, ApprovalJobResponseRaw, CreateProductRequest, CreateProductResult, DeleteProductResult, Page, ProductResponse, ProductResponseRaw, UpdateProductRequest } from "../models";
+import { http } from "@/src/lib";
+import type { ApprovalJobResponse, ApprovalJobResponseRaw, CreateProductRequest, CreateProductResult, DeleteProductResult, Page, ProductResponse, ProductResponseRaw, UpdateProductRequest } from "@/src/models";
 
 
 const BASE = "/Product";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCart } from "@/src/hooks/useCart";
+import { useCart } from "@/src/hooks";
 import { CartItem, CartSummary, EmptyCart } from "@/src/components";
 import { FiArrowLeft } from "react-icons/fi";
 

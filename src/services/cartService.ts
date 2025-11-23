@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { AddCartItemRequest, ApplyCouponRequest, CartResponse, CartResponseRaw, CheckoutRequest, OrderResponse, OrderResponseRaw, Page, UpdateCartItemRequest } from "../models";
+import { http } from "@/src/lib";
+import type { AddCartItemRequest, ApplyCouponRequest, CartResponse, CartResponseRaw, CheckoutRequest, OrderResponse, OrderResponseRaw, Page, UpdateCartItemRequest } from "@/src/models";
 
 
 const BASE = "/Cart";

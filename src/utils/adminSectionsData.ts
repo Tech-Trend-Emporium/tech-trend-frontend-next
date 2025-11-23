@@ -1,5 +1,5 @@
 import { Package, List, FolderTree, Users, UserPlus, Ticket, HelpCircle, Briefcase, Warehouse, Plus, ListOrdered, LucideIcon } from 'lucide-react';
-import { Role } from "../models";
+import { Role } from "@/src/models";
 
 
 type Category = 'Create' | 'View' | 'Review' | 'Manage';

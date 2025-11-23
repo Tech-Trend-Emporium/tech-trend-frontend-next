@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "../atoms";
+import { Button } from "@/src/components";
 import { FiShoppingCart } from "react-icons/fi";
 
 

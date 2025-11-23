@@ -1,5 +1,5 @@
-import { http } from "../lib/http";
-import type { CouponResponse, CouponResponseRaw, CreateCouponRequest, Page, UpdateCouponRequest } from "../models";
+import { http } from "@/src/lib";
+import type { CouponResponse, CouponResponseRaw, CreateCouponRequest, Page, UpdateCouponRequest } from "@/src/models";
 
 
 const BASE = "/Coupon";

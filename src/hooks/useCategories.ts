@@ -13,7 +13,12 @@ export interface FilterField {
     name: string;
 }
 
-export const useCategories = () => {
+interface UseCategoriesReturn {
+    checklistItems: CheckboxFieldProps[];
+    selectedCategories: string[];
+}
+
+export const useCategories = (): UseCategoriesReturn => {
     const [filterFields, setFilterFields] = useState<FilterField[]>([]);
     const [selected, setSelected] = useState<string[]>([]);
 

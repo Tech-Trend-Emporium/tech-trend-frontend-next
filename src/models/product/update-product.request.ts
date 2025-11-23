@@ -1,4 +1,4 @@
-import type { UpdateInventoryInlineRequest } from "../";
+import type { UpdateInventoryInlineRequest } from "@/src/models";
 
 
 export interface UpdateProductRequest {

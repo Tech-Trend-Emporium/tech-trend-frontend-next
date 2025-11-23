@@ -3,8 +3,7 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ButtonVariant, FilterSorter } from "@/src/components";
-import { useCategories } from "@/src/hooks/useCategories";
-import { useProducts } from "@/src/hooks/useProducts";
+import { useCategories, useProducts } from "@/src/hooks";
 
 
 export default function ProductPage() {

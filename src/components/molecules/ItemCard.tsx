@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { AddToCartButton, FavoriteButton } from "../";
-import { useAuth } from "@/src/auth";
 import { useRouter } from "next/navigation";
+import { AddToCartButton, FavoriteButton, WishListButton } from "@/src/components";
+import { useAuth } from "@/src/auth";
 
 
 export interface CardProps {
@@ -23,22 +23,29 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
   const numericId = typeof id === "string" ? parseInt(id, 10) : id;
   const isValidId = typeof numericId === "number" && !isNaN(numericId);
 
-  return (
-    <div className={`flex flex-col justify-center items-center p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
-                    hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative ${ isProduct && auth.isAuthenticated ? 'hover:cursor-pointer' : '' }`} 
-          onClick={() => {
-            if (isProduct && isValidId) {
-              router.push(`/shoplist/${numericId}`);
-            }
-          }}>
+  const handleClick = () => {
+    if (isProduct && isValidId) {
+      router.push(`/shoplist/${numericId}`);
+    }
+  };
 
+  return (
+    <div
+      className={`flex flex-col justify-center items-center p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
+                  hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative 
+                  ${isProduct ? "hover:cursor-pointer" : ""}`}
+      onClick={handleClick}
+    >
       {/* Action Buttons */}
       {isProduct && isValidId && (
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
           <FavoriteButton productId={numericId} />
 
           {auth.isAuthenticated && (
-            <AddToCartButton productId={numericId} variant="card" />
+            <>
+              <WishListButton productId={numericId} variant="card" />
+              <AddToCartButton productId={numericId} variant="card" />
+            </>
           )}
         </div>
       )}

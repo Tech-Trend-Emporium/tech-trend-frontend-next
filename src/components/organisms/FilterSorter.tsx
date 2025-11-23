@@ -1,4 +1,4 @@
-import { Button, CardProps, CheckboxFieldProps, Checklist, DropdownField, ItemGrid } from "../";
+import { Button, CardProps, CheckboxFieldProps, Checklist, DropdownField, ItemGrid } from "@/src/components";
 
 
 interface filterSorterProps {

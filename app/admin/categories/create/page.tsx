@@ -6,7 +6,7 @@ import axios from "axios";
 import { AdminFormTemplate, CategoryForm } from "@/src/components";
 import { CategoryService } from "@/src/services";
 import type { CreateCategoryRequest } from "@/src/models";
-import { toastSuccess } from "@/src/lib/toast";
+import { toastSuccess } from "@/src/lib";
 
 
 export default function CreateCategoryPage() {

@@ -1,5 +1,5 @@
 import { Navbar, NavbarLink} from "flowbite-react";
-import { Button } from "../atoms";
+import { Button } from "@/src/components";
 
 
 export const ExtraInfoOverNavbar = () => {

@@ -1,4 +1,4 @@
-import type { Role } from "../";
+import type { Role } from "@/src/models";
 
 
 export interface UserResponseRaw {

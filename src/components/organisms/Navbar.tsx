@@ -1,7 +1,7 @@
 "use client";
 
 import { Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, Button as FBButton, Badge } from "flowbite-react";
-import { Logo, Button, LogoutButton, SearchBar } from "../../components";
+import { Logo, Button, LogoutButton, SearchBar } from "@/src/components";
 import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
@@ -9,7 +9,7 @@ import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
 
 export const NavbarComponent = () => {
   const router = useRouter();
-  const mounted = useMounted();
+  const { mounted } = useMounted();
   const { isAuthenticated, role, username } = useIdentity();
   const { handleSearchChange, handleSearchSubmit, handleSuggestionClick, searchValue, suggestions } = useSearchBar();
   const { itemCount } = useCart();
@@ -60,14 +60,16 @@ export const NavbarComponent = () => {
           </span>
         </NavbarBrand>
 
-        <div className="flex md:order-2 items-center gap-2" suppressHydrationWarning>
-          {!isAuthenticated ? (
-            <Button href="/sign-in" variant="outline" size="sm">
+        <div className="flex md:order-2 items-center gap-2">
+          {!mounted ? (
+            <div className="h-6 w-24 rounded bg-gray-200 dark:bg-gray-700" aria-hidden />
+          ) : !isAuthenticated ? (
+            <Button href="/auth/sign-in" variant="outline" size="sm">
               Login
             </Button>
           ) : (
             <>
-              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2" suppressHydrationWarning>
+              <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 mr-2">
                 {roleLabel}{username ? ` · ${username}` : ""}
               </span>
 

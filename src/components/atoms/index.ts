@@ -1,7 +1,5 @@
 export * from "./AddToCartButton";
-export * from "./AdminCard";
 export * from "./Button";
-export * from "./CartItem";
 export * from "./CheckBoxField";
 export * from "./DropDownField";
 export * from "./ErrorCode";
@@ -12,3 +10,4 @@ export * from "./InputField";
 export * from "./Logo";
 export * from "./LogoutButton";
 export * from "./QuantitySelector";
+export * from "./WishListButton";
