@@ -2,8 +2,8 @@
 
 import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../auth";
 import { clearAuth } from "@/src/utils";
+import { useAuth } from "@/src/auth";
 
 
 export const LogoutButton = () => {

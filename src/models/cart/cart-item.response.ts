@@ -1,6 +1,7 @@
 export interface CartItemResponse {
     productId: number;
-    productName: string;
+    name: string;
+    imageUrl: string;
     unitPrice: number;
     quantity: number;
     lineTotal: number;
