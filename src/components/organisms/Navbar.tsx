@@ -5,7 +5,6 @@ import { Logo, Button, LogoutButton, SearchBar } from "@/src/components";
 import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
-import React from "react";
 
 
 export const NavbarComponent = () => {
@@ -125,34 +124,6 @@ export const NavbarComponent = () => {
               <NavbarLink href="/shoplist">Shoplist</NavbarLink>
               <NavbarLink href="/wishlist">Wishlist</NavbarLink>
               <NavbarLink href="/cart/orders">My Orders</NavbarLink>
-
-              <li className="relative w-full max-w-xs list-none">
-                <SearchBar
-                  placeholder="Search products"
-                  value={searchValue}
-                  onChange={handleSearchChange}
-                  onSubmit={handleSearchSubmit}
-                />
-                {suggestions.length > 0 && (
-                  <ul className="absolute mt-2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-md z-50">
-                    {suggestions.map((s) => (
-                      <li
-                        key={s.id}
-                        className="cursor-pointer py-1 px-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                        onClick={() => handleSuggestionClick(s.id)}
-                      >
-                        {s.title}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            </>
-          )}
-
-          {mounted && !isAuthenticated && (
-            <>
-              <NavbarLink href="/favorites">Favorites</NavbarLink>
 
               <li className="relative w-full max-w-xs list-none">
                 <SearchBar

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AddToCartButton, FavoriteButton, WishListButton } from "@/src/components";
@@ -14,37 +15,37 @@ export interface CardProps {
   ctaText?: string;
 }
 
-export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
+const ItemCardInner = ({ id, image, title, price, ctaText }: CardProps) => {
   const isPriceVisible = typeof price === "number" && !Number.isNaN(price);
   const isProduct = isPriceVisible;
   const { auth } = useAuth();
   const router = useRouter();
 
-  const numericId = typeof id === "string" ? parseInt(id, 10) : id;
-  const isValidId = typeof numericId === "number" && !isNaN(numericId);
+  const numericId = useMemo(
+    () => (typeof id === "string" ? parseInt(id, 10) : id),
+    [id]
+  );
+  const isValidId = typeof numericId === "number" && !isNaN(numericId as number);
 
-  const handleClick = () => {
-    if (isProduct && isValidId) {
-      router.push(`/shoplist/${numericId}`);
-    }
-  };
+  const handleClick = useCallback(() => {
+    if (isProduct && isValidId) router.push(`/shoplist/${numericId}`);
+  }, [isProduct, isValidId, router, numericId]);
 
   return (
     <div
       className={`flex flex-col justify-center items-center p-5 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden 
                   hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative 
-                  ${isProduct ? "hover:cursor-pointer" : ""}`}
-      onClick={handleClick}
+                  ${isProduct && auth.isAuthenticated ? "hover:cursor-pointer" : ""}`}
+      onClick={auth.isAuthenticated ? handleClick : undefined}
     >
       {/* Action Buttons */}
       {isProduct && isValidId && (
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-          <FavoriteButton productId={numericId} />
-
           {auth.isAuthenticated && (
             <>
-              <WishListButton productId={numericId} variant="card" />
-              <AddToCartButton productId={numericId} variant="card" />
+              <FavoriteButton productId={numericId as number} />
+              <WishListButton productId={numericId as number} variant="card" />
+              <AddToCartButton productId={numericId as number} variant="card" />
             </>
           )}
         </div>
@@ -78,4 +79,16 @@ export const ItemCard = ({ id, image, title, price, ctaText }: CardProps) => {
       </div>
     </div>
   );
+}
+
+const areEqual = (prev: Readonly<CardProps>, next: Readonly<CardProps>) => {
+  return (
+    prev.id === next.id &&
+    prev.image === next.image &&
+    prev.title === next.title &&
+    prev.price === next.price &&
+    prev.ctaText === next.ctaText
+  );
 };
+
+export const ItemCard = memo(ItemCardInner, areEqual);

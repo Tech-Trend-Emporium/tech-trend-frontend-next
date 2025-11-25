@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Form, InputField, DropdownField } from "@/src/components";
@@ -18,24 +19,26 @@ type Inputs = {
 
 const roleOptions: Role[] = ["ADMIN", "EMPLOYEE", "SHOPPER"];
 
-export const UserForm = ({
-    mode,
-    initial,
-    onSubmit,
-    isLoading,
-    errorMessage
-}: {
+type Props = {
     mode: Mode;
     initial?: UserResponse;
     onSubmit: (payload: CreateUserRequest | UpdateUserRequest) => void;
     isLoading: boolean;
     errorMessage: string | null;
-}) => {
+};
+
+const UserFormInner = ({
+    mode,
+    initial,
+    onSubmit,
+    isLoading,
+    errorMessage,
+}: Props) => {
     const {
         control,
         handleSubmit,
         reset,
-        formState: { errors, isValid, isDirty }
+        formState: { errors, isValid, isDirty },
     } = useForm<Inputs>({
         mode: "onChange",
         defaultValues: {
@@ -43,8 +46,8 @@ export const UserForm = ({
             email: initial?.email ?? "",
             password: "",
             role: initial?.role ?? "SHOPPER",
-            isActive: initial?.isActive ?? true
-        }
+            isActive: initial?.isActive ?? true,
+        },
     });
 
     useEffect(() => {
@@ -54,13 +57,30 @@ export const UserForm = ({
                 email: initial.email,
                 password: "",
                 role: initial.role,
-                isActive: initial.isActive
+                isActive: initial.isActive,
             });
         }
     }, [initial, reset]);
 
-    const submitText = mode === "create" ? "Create User" : "Update User";
-    const disabled = mode === "create" ? !isValid || isLoading : !isValid || !isDirty || isLoading;
+    const submitText = useMemo(
+        () => (mode === "create" ? "Create User" : "Update User"),
+        [mode]
+    );
+
+    const disabled = useMemo(
+        () => (mode === "create" ? !isValid || isLoading : !isValid || !isDirty || isLoading),
+        [mode, isValid, isDirty, isLoading]
+    );
+
+    const submitButton = useMemo(
+        () => ({
+            text: submitText,
+            disabled,
+            isLoading,
+            variant: "dark" as const,
+        }),
+        [submitText, disabled, isLoading]
+    );
 
     return (
         <Form
@@ -71,7 +91,7 @@ export const UserForm = ({
                         email: v.email.trim(),
                         password: v.password,
                         role: v.role,
-                        isActive: v.isActive
+                        isActive: v.isActive,
                     };
                     onSubmit(payload);
                 } else {
@@ -79,12 +99,12 @@ export const UserForm = ({
                         username: v.username.trim(),
                         email: v.email.trim(),
                         role: v.role,
-                        isActive: v.isActive
+                        isActive: v.isActive,
                     };
                     onSubmit(payload);
                 }
             })}
-            submitButton={{ text: submitText, disabled, isLoading, variant: "dark" }}
+            submitButton={submitButton}
             errorMessage={errorMessage}
             className="space-y-5"
         >
@@ -94,8 +114,14 @@ export const UserForm = ({
                 control={control}
                 rules={{
                     required: "The field Username is required.",
-                    minLength: { value: 3, message: "The field Username must be between 3 and 50 characters." },
-                    maxLength: { value: 50, message: "The field Username must be between 3 and 50 characters." },
+                    minLength: {
+                        value: 3,
+                        message: "The field Username must be between 3 and 50 characters.",
+                    },
+                    maxLength: {
+                        value: 50,
+                        message: "The field Username must be between 3 and 50 characters.",
+                    },
                 }}
                 render={({ field }) => (
                     <>
@@ -116,7 +142,11 @@ export const UserForm = ({
                 control={control}
                 rules={{
                     required: "The field Email is required.",
-                    maxLength: { value: 254, message: "The field Email must be a maximum length of 254 characters." },
+                    maxLength: {
+                        value: 254,
+                        message:
+                            "The field Email must be a maximum length of 254 characters.",
+                    },
                 }}
                 render={({ field }) => (
                     <>
@@ -139,8 +169,16 @@ export const UserForm = ({
                     control={control}
                     rules={{
                         required: "The field Password is required.",
-                        minLength: { value: 8, message: "The field Password must be between 8 and 100 characters." },
-                        maxLength: { value: 100, message: "The field Password must be between 8 and 100 characters." },
+                        minLength: {
+                            value: 8,
+                            message:
+                                "The field Password must be between 8 and 100 characters.",
+                        },
+                        maxLength: {
+                            value: 100,
+                            message:
+                                "The field Password must be between 8 and 100 characters.",
+                        },
                     }}
                     render={({ field }) => (
                         <>
@@ -163,7 +201,7 @@ export const UserForm = ({
                 control={control}
                 rules={{
                     validate: (v) =>
-                        roleOptions.includes(v) ? true : "The provided role is not valid."
+                        roleOptions.includes(v) ? true : "The provided role is not valid.",
                 }}
                 render={({ field }) => (
                     <>
@@ -192,7 +230,10 @@ export const UserForm = ({
                             checked={field.value}
                             onChange={(e) => field.onChange(e.target.checked)}
                         />
-                        <label htmlFor="isActive" className="text-sm text-gray-900 dark:text-gray-100">
+                        <label
+                            htmlFor="isActive"
+                            className="text-sm text-gray-900 dark:text-gray-100"
+                        >
                             Active
                         </label>
                     </div>
@@ -201,3 +242,15 @@ export const UserForm = ({
         </Form>
     );
 };
+
+const areEqual = (prev: Readonly<Props>, next: Readonly<Props>) => {
+    return (
+        prev.mode === next.mode &&
+        prev.initial === next.initial &&
+        prev.onSubmit === next.onSubmit &&
+        prev.isLoading === next.isLoading &&
+        prev.errorMessage === next.errorMessage
+    );
+};
+
+export const UserForm = memo(UserFormInner, areEqual);

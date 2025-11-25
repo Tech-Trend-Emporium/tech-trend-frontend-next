@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import type { UserResponse } from "@/src/models";
 
 
@@ -10,14 +11,14 @@ interface UsersTableProps {
     onDelete: (id: number) => void;
 }
 
-const fmt = (d?: Date | null) => (d ? d.toLocaleString() : "—");
+const UsersTableInner = ({ users, isLoading, onEdit, onDelete }: UsersTableProps) => {
+    const dtf = useMemo(
+        () => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }),
+        []
+    );
 
-export const UsersTable = ({
-    users,
-    isLoading,
-    onEdit,
-    onDelete
-}: UsersTableProps) => {
+    const fmt = (d?: Date | null) => (d ? dtf.format(d) : "—");
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center py-16">
@@ -28,9 +29,7 @@ export const UsersTable = ({
 
     if (users.length === 0) {
         return (
-            <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-                No users found
-            </div>
+            <div className="text-center py-16 text-gray-500 dark:text-gray-400">No users found</div>
         );
     }
 
@@ -41,14 +40,17 @@ export const UsersTable = ({
                 <table className="w-full">
                     <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                         <tr>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">ID</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Username</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Email</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Role</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Active</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Created</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Updated</th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Actions</th>
+                            {["ID", "Username", "Email", "Role", "Active", "Created", "Updated", "Actions"].map(
+                                (h) => (
+                                    <th
+                                        key={h}
+                                        className={`px-6 py-4 text-${h === "Actions" ? "right" : "left"
+                                            } text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase`}
+                                    >
+                                        {h}
+                                    </th>
+                                )
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -56,17 +58,21 @@ export const UsersTable = ({
                             <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{u.id}</td>
                                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{u.username}</td>
-                                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{u.email}</td>
+                                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 break-all">
+                                    {u.email}
+                                </td>
                                 <td className="px-6 py-4 text-sm">
                                     <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
                                         {u.role}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-sm">
-                                    <span className={`px-2 py-1 rounded text-xs font-medium ${u.isActive
-                                            ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
-                                            : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                                        }`}>
+                                    <span
+                                        className={`px-2 py-1 rounded text-xs font-medium ${u.isActive
+                                                ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+                                                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                                            }`}
+                                    >
                                         {u.isActive ? "Active" : "Inactive"}
                                     </span>
                                 </td>
@@ -135,3 +141,14 @@ export const UsersTable = ({
         </>
     );
 };
+
+const areEqual = (prev: Readonly<UsersTableProps>, next: Readonly<UsersTableProps>) => {
+    return (
+        prev.isLoading === next.isLoading &&
+        prev.onEdit === next.onEdit &&
+        prev.onDelete === next.onDelete &&
+        prev.users === next.users
+    );
+};
+
+export const UsersTable = memo(UsersTableInner, areEqual);

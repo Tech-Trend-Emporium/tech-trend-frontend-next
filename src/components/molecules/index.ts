@@ -1,3 +1,4 @@
+export * from "./AddressSection";
 export * from "./AdminCard";
 export * from "./CardsGrid";
 export * from "./CartItem";
@@ -10,8 +11,11 @@ export * from "./ErrorActions";
 export * from "./ErrorHeader";
 export * from "./FooterBrand";
 export * from "./ItemCard";
+export * from "./OrderSummary";
 export * from "./Pagination";
+export * from "./PaymentMethodSection";
 export * from "./ProductDetail";
 export * from "./SearchBar";
+export * from "./SidebarFilters";
 export * from "./WishListItem";
 export * from "./WishListSummary";

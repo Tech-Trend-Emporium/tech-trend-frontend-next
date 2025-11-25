@@ -1,8 +1,8 @@
 "use client";
 
+import { memo, useCallback, useMemo, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { UserService } from "@/src/services";
 import type { UserResponse } from "@/src/models";
 import { toastSuccess, toastError } from "@/src/lib";
@@ -10,24 +10,43 @@ import { AdminListTemplate, ConfirmModal, Pagination, UsersTable } from "@/src/c
 import { usePaginatedList } from "@/src/hooks";
 
 
-export default function UsersListPage() {
+const UsersListPageInner = () => {
     const router = useRouter();
 
-    const { items: users, total, totalPages, page, setPage, loading, refresh, take } 
-        = usePaginatedList<UserResponse>(UserService.list, 10);
+    const {
+        items: users,
+        total,
+        totalPages,
+        page,
+        setPage,
+        loading,
+        refresh,
+        take,
+    } = usePaginatedList<UserResponse>(UserService.list, 10);
 
     const [deleteModalId, setDeleteModalId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleDelete = async () => {
+    const openDeleteModal = useCallback((id: number) => setDeleteModalId(id), []);
+    const closeDeleteModal = useCallback(() => setDeleteModalId(null), []);
+
+    const handleEdit = useCallback((id: number) => router.push(`/admin/users/edit/${id}`), [router]);
+    const handleCreate = useCallback(() => router.push("/admin/users/create"), [router]);
+
+    const showPagination = useMemo(
+        () => !loading && users.length > 0 && totalPages > 1,
+        [loading, users.length, totalPages]
+    );
+
+    const handleDelete = useCallback(async () => {
         if (!deleteModalId) return;
         setIsDeleting(true);
         try {
             await UserService.remove(deleteModalId);
             toastSuccess("User deleted successfully");
 
-            const isLastItemOnPage = users.length === 1;
             const newTotal = total - 1;
+            const isLastItemOnPage = users.length === 1;
             const maxIndexOnCurrentPage = (page - 1) * take;
 
             if (isLastItemOnPage && page > 1 && newTotal <= maxIndexOnCurrentPage) {
@@ -45,10 +64,7 @@ export default function UsersListPage() {
             setIsDeleting(false);
             setDeleteModalId(null);
         }
-    };
-
-    const handleEdit = (id: number) => router.push(`/admin/users/edit/${id}`);
-    const handleCreate = () => router.push("/admin/users/create");
+    }, [deleteModalId, page, take, total, users.length, refresh, setPage]);
 
     return (
         <>
@@ -57,10 +73,10 @@ export default function UsersListPage() {
                     users={users}
                     isLoading={loading}
                     onEdit={handleEdit}
-                    onDelete={(id) => setDeleteModalId(id)}
+                    onDelete={openDeleteModal}
                 />
 
-                {!loading && users.length > 0 && (
+                {showPagination && (
                     <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                         <Pagination
                             currentPage={page}
@@ -75,7 +91,7 @@ export default function UsersListPage() {
 
             <ConfirmModal
                 isOpen={deleteModalId !== null}
-                onClose={() => setDeleteModalId(null)}
+                onClose={closeDeleteModal}
                 onConfirm={handleDelete}
                 title="Confirm Delete"
                 message="Are you sure you want to delete this user? This action cannot be undone."
@@ -85,4 +101,6 @@ export default function UsersListPage() {
             />
         </>
     );
-}
+};
+
+export default memo(UsersListPageInner);

@@ -1,3 +1,6 @@
+"use client";
+
+import { memo, useCallback, useMemo } from "react";
 import { Button } from "@/src/components";
 
 
@@ -9,31 +12,25 @@ interface PaginationProps {
     onPageChange: (page: number) => void;
 }
 
-export const Pagination = ({
+const PaginationInner = ({
     currentPage,
     totalPages,
     totalItems,
     itemsPerPage,
-    onPageChange
+    onPageChange,
 }: PaginationProps) => {
-    const startItem = (currentPage - 1) * itemsPerPage + 1;
-    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+    const startItem = useMemo(() => (currentPage - 1) * itemsPerPage + 1, [currentPage, itemsPerPage]);
+    const endItem = useMemo(() => Math.min(currentPage * itemsPerPage, totalItems), [currentPage, itemsPerPage, totalItems]);
 
-    const getPageNumbers = () => {
-        if (totalPages <= 5) {
-            return Array.from({ length: totalPages }, (_, i) => i + 1);
-        }
-
-        if (currentPage <= 3) {
-            return [1, 2, 3, 4, 5];
-        }
-
-        if (currentPage >= totalPages - 2) {
-            return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-        }
-
+    const pageNumbers = useMemo(() => {
+        if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+        if (currentPage <= 3) return [1, 2, 3, 4, 5];
+        if (currentPage >= totalPages - 2) return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
         return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
-    };
+    }, [currentPage, totalPages]);
+
+    const goPrev = useCallback(() => onPageChange(currentPage - 1), [onPageChange, currentPage]);
+    const goNext = useCallback(() => onPageChange(currentPage + 1), [onPageChange, currentPage]);
 
     return (
         <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -41,16 +38,12 @@ export const Pagination = ({
                 Showing {startItem} to {endItem} of {totalItems} products
             </p>
             <div className="flex gap-2">
-                <Button
-                    variant="secondary"
-                    onClick={() => onPageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                >
+                <Button variant="secondary" onClick={goPrev} disabled={currentPage === 1}>
                     Previous
                 </Button>
 
                 <div className="hidden sm:flex gap-2">
-                    {getPageNumbers().map((pageNum) => (
+                    {pageNumbers.map((pageNum) => (
                         <button
                             key={pageNum}
                             onClick={() => onPageChange(pageNum)}
@@ -64,14 +57,22 @@ export const Pagination = ({
                     ))}
                 </div>
 
-                <Button
-                    variant="secondary"
-                    onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
+                <Button variant="secondary" onClick={goNext} disabled={currentPage === totalPages}>
                     Next
                 </Button>
             </div>
         </div>
     );
+}
+
+const areEqual = (prev: Readonly<PaginationProps>, next: Readonly<PaginationProps>) => {
+    return (
+        prev.currentPage === next.currentPage &&
+        prev.totalPages === next.totalPages &&
+        prev.totalItems === next.totalItems &&
+        prev.itemsPerPage === next.itemsPerPage &&
+        prev.onPageChange === next.onPageChange
+    );
 };
+
+export const Pagination = memo(PaginationInner, areEqual);

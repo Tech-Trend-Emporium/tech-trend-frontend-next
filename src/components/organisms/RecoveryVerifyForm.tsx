@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { InputField, DropdownField, Form } from "@/src/components";
 import type { VerifyRecoveryAnswerRequest } from "@/src/models";
@@ -18,7 +19,11 @@ interface RecoveryVerifyFormProps {
     onSubmit: (data: VerifyRecoveryAnswerRequest) => void;
 }
 
-export const RecoveryVerifyForm = ({
+const emailUserRules = { required: "Email or username is required" } as const;
+const questionRules = { required: "Select your security question" } as const;
+const answerRules = { required: "Please provide your answer" } as const;
+
+const RecoveryVerifyFormInner = ({
     securityQuestions,
     isLoading,
     errorMessage,
@@ -30,12 +35,18 @@ export const RecoveryVerifyForm = ({
         formState: { errors, isValid },
     } = useForm<RecoveryVerifyInputs>({
         mode: "onChange",
-        defaultValues: {
-            emailOrUsername: "",
-            securityQuestion: "",
-            answer: "",
-        },
+        defaultValues: { emailOrUsername: "", securityQuestion: "", answer: "" },
     });
+
+    const submitBtn = useMemo(
+        () => ({
+            text: "Verify Identity",
+            disabled: !isValid || isLoading,
+            isLoading,
+            variant: "dark" as const,
+        }),
+        [isValid, isLoading]
+    );
 
     return (
         <Form
@@ -47,12 +58,7 @@ export const RecoveryVerifyForm = ({
                 };
                 onSubmit(payload);
             })}
-            submitButton={{
-                text: "Verify Identity",
-                disabled: !isValid || isLoading,
-                isLoading,
-                variant: "dark",
-            }}
+            submitButton={submitBtn}
             errorMessage={errorMessage}
             className="space-y-5"
         >
@@ -60,7 +66,7 @@ export const RecoveryVerifyForm = ({
             <Controller
                 name="emailOrUsername"
                 control={control}
-                rules={{ required: "Email or username is required" }}
+                rules={emailUserRules}
                 render={({ field }) => (
                     <>
                         <InputField
@@ -80,7 +86,7 @@ export const RecoveryVerifyForm = ({
             <Controller
                 name="securityQuestion"
                 control={control}
-                rules={{ required: "Select your security question" }}
+                rules={questionRules}
                 render={({ field }) => (
                     <>
                         <DropdownField
@@ -102,7 +108,7 @@ export const RecoveryVerifyForm = ({
             <Controller
                 name="answer"
                 control={control}
-                rules={{ required: "Please provide your answer" }}
+                rules={answerRules}
                 render={({ field }) => (
                     <>
                         <InputField
@@ -111,12 +117,21 @@ export const RecoveryVerifyForm = ({
                             label="Your Answer"
                             placeholder="Enter your security answer"
                         />
-                        {errors.answer && (
-                            <p className="text-red-600 text-sm mt-1">{errors.answer.message}</p>
-                        )}
+                        {errors.answer && <p className="text-red-600 text-sm mt-1">{errors.answer.message}</p>}
                     </>
                 )}
             />
         </Form>
     );
+}
+
+const areEqual = (prev: Readonly<RecoveryVerifyFormProps>, next: Readonly<RecoveryVerifyFormProps>) => {
+    return (
+        prev.isLoading === next.isLoading &&
+        prev.errorMessage === next.errorMessage &&
+        prev.onSubmit === next.onSubmit &&
+        prev.securityQuestions === next.securityQuestions
+    );
 };
+
+export const RecoveryVerifyForm = memo(RecoveryVerifyFormInner, areEqual);

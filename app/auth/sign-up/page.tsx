@@ -1,11 +1,12 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import Link from "next/link";
 import { AuthTemplate, SignUpForm } from "@/src/components";
 import { useSignUp } from "@/src/hooks";
 
 
-export default function SignUpPage() {
+const SignUpPageInner = () => {
   const {
     securityQuestions,
     loadingQuestions,
@@ -13,6 +14,8 @@ export default function SignUpPage() {
     errorMessage,
     handleSubmit,
   } = useSignUp();
+
+  const isLoading = useMemo(() => isSubmitting || loadingQuestions, [isSubmitting, loadingQuestions]);
 
   return (
     <AuthTemplate imageSrc="/icon.png" imageAlt="Sign up illustration">
@@ -22,7 +25,7 @@ export default function SignUpPage() {
 
       <SignUpForm
         securityQuestions={securityQuestions}
-        isLoading={isSubmitting || loadingQuestions}
+        isLoading={isLoading}
         errorMessage={errorMessage}
         onSubmit={handleSubmit}
       />
@@ -37,4 +40,6 @@ export default function SignUpPage() {
       </p>
     </AuthTemplate>
   );
-}
+};
+
+export default memo(SignUpPageInner);

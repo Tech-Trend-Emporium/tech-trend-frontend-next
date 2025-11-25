@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { isFavorite, toggleFavorite, onFavoritesChanged } from "@/src/utils";
 
 
@@ -9,40 +9,33 @@ interface FavoriteButtonProps {
     className?: string;
 }
 
-export const FavoriteButton = ({ productId, className = "" }: FavoriteButtonProps) => {
+const FavoriteButtonInner = ({ productId, className = "" }: FavoriteButtonProps) => {
     const [favorite, setFavorite] = useState(false);
 
     useEffect(() => {
-        const updateFavoriteState = () => {
-            setFavorite(isFavorite(productId));
-        };
-
-        updateFavoriteState();
-        const unsubscribe = onFavoritesChanged(updateFavoriteState);
-
+        const update = () => setFavorite(isFavorite(productId));
+        update();
+        const unsubscribe = onFavoritesChanged(update);
         return unsubscribe;
     }, [productId]);
 
-    const handleToggle = (e: React.MouseEvent) => {
+    const handleToggle = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        const newState = toggleFavorite(productId);
-        setFavorite(newState);
-    };
+        setFavorite(toggleFavorite(productId));
+    }, [productId]);
 
     return (
         <button
             onClick={handleToggle}
             className={`p-2 rounded-full bg-white/90 dark:bg-gray-700/90 
-                    hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 
-                    shadow-sm hover:shadow-md cursor-pointer ${className}`}
+        hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 
+        shadow-sm hover:shadow-md cursor-pointer ${className}`}
             aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className={`w-5 h-5 transition-colors duration-200 ${favorite
-                        ? "fill-red-500 stroke-red-500"
-                        : "fill-none stroke-gray-600 dark:stroke-gray-300"
+                className={`w-5 h-5 transition-colors duration-200 ${favorite ? "fill-red-500 stroke-red-500" : "fill-none stroke-gray-600 dark:stroke-gray-300"
                     }`}
                 viewBox="0 0 24 24"
                 strokeWidth="2"
@@ -54,3 +47,9 @@ export const FavoriteButton = ({ productId, className = "" }: FavoriteButtonProp
         </button>
     );
 };
+
+const areEqualFav = (prev: Readonly<FavoriteButtonProps>, next: Readonly<FavoriteButtonProps>) => {
+    return prev.productId === next.productId && prev.className === next.className;
+};
+
+export const FavoriteButton = memo(FavoriteButtonInner, areEqualFav);

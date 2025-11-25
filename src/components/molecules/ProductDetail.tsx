@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { memo, useMemo, useState, useCallback } from "react";
 import { Button, FavoriteButton, QuantitySelector } from "@/src/components";
 import { FiShare2 } from "react-icons/fi";
 
@@ -29,7 +29,7 @@ export interface ProductDetailProps {
     onAddToCart: () => void;
 }
 
-export const ProductDetail = ({
+const ProductDetailInner = ({
     product,
     quantity,
     isAddingToCart = false,
@@ -38,9 +38,16 @@ export const ProductDetail = ({
     onAddToCart,
 }: ProductDetailProps) => {
     const [selectedImage, setSelectedImage] = useState(0);
-    const hasMultipleImages = product.images.length > 1;
 
-    const handleShare = async () => {
+    const hasMultipleImages = useMemo(() => product.images.length > 1, [product.images.length]);
+    const totalPrice = useMemo(() => (product.price * quantity).toFixed(2), [product.price, quantity]);
+
+    const ratingRounded = useMemo(
+        () => (product.ratingRate !== undefined ? Math.round(product.ratingRate) : undefined),
+        [product.ratingRate]
+    );
+
+    const handleShare = useCallback(async () => {
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -48,14 +55,11 @@ export const ProductDetail = ({
                     text: product.description,
                     url: window.location.href,
                 });
-            } catch {
-                // User cancelled or share failed silently
-            }
+            } catch { }
         } else {
-            // Fallback: copy to clipboard
             await navigator.clipboard.writeText(window.location.href);
         }
-    };
+    }, [product.title, product.description]);
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16">
@@ -66,13 +70,12 @@ export const ProductDetail = ({
                     <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto sm:max-h-[600px] pb-2 sm:pb-0 sm:pr-2 scrollbar-thin">
                         {product.images.map((img, idx) => (
                             <button
-                                key={idx}
+                                key={img + idx}
                                 onClick={() => setSelectedImage(idx)}
                                 className={`relative shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700
-                                    ring-2 transition-all ${selectedImage === idx
-                                        ? "ring-gray-900 dark:ring-gray-100"
-                                        : "ring-transparent hover:ring-gray-300 dark:hover:ring-gray-600"
-                                    }`}
+                                            ring-2 transition-all ${selectedImage === idx
+                                                                    ? "ring-gray-900 dark:ring-gray-100"
+                                                                    : "ring-transparent hover:ring-gray-300 dark:hover:ring-gray-600"}`}
                             >
                                 <Image
                                     src={img}
@@ -146,13 +149,10 @@ export const ProductDetail = ({
                             isLoading={isAddingToCart}
                             className="h-12 sm:h-14 text-base sm:text-lg font-semibold"
                         >
-                            Add to Cart - ${(product.price * quantity).toFixed(2)}
+                            Add to Cart - ${totalPrice}
                         </Button>
                     </div>
-                    <QuantitySelector
-                        quantity={quantity}
-                        onChange={onQuantityChange}
-                    />
+                    <QuantitySelector quantity={quantity} onChange={onQuantityChange} />
                 </div>
 
                 {/* Shipping Info */}
@@ -166,9 +166,7 @@ export const ProductDetail = ({
                         </span>
                     )}
                     {product.freeReturns !== false && (
-                        <span
-                            className="flex items-center gap-1.5"
-                        >
+                        <span className="flex items-center gap-1.5">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
                             </svg>
@@ -177,7 +175,7 @@ export const ProductDetail = ({
                     )}
                 </div>
 
-                {/* Rating (optional) */}
+                {/* Rating */}
                 {product.ratingRate !== undefined && (
                     <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex items-center gap-2">
@@ -185,10 +183,7 @@ export const ProductDetail = ({
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <svg
                                         key={star}
-                                        className={`w-5 h-5 ${star <= Math.round(product.ratingRate!)
-                                                ? "text-yellow-400"
-                                                : "text-gray-300 dark:text-gray-600"
-                                            }`}
+                                        className={`w-5 h-5 ${ratingRounded && star <= ratingRounded ? "text-yellow-400" : "text-gray-300 dark:text-gray-600"}`}
                                         fill="currentColor"
                                         viewBox="0 0 20 20"
                                     >
@@ -206,3 +201,36 @@ export const ProductDetail = ({
         </div>
     );
 };
+
+const areEqual = (prev: Readonly<ProductDetailProps>, next: Readonly<ProductDetailProps>) => {
+    const a = prev.product;
+    const b = next.product;
+
+    const sameProductCore =
+        a.id === b.id &&
+        a.title === b.title &&
+        a.price === b.price &&
+        a.description === b.description &&
+        a.vendor === b.vendor &&
+        a.category === b.category &&
+        a.ratingRate === b.ratingRate &&
+        a.count === b.count &&
+        a.freeShipping === b.freeShipping &&
+        a.freeReturns === b.freeReturns;
+
+    const sameImages =
+        a.images.length === b.images.length &&
+        a.images.every((img, i) => img === b.images[i]);
+
+    return (
+        sameProductCore &&
+        sameImages &&
+        prev.quantity === next.quantity &&
+        prev.isAddingToCart === next.isAddingToCart &&
+        prev.addToCartError === next.addToCartError &&
+        prev.onQuantityChange === next.onQuantityChange &&
+        prev.onAddToCart === next.onAddToCart
+    );
+};
+
+export const ProductDetail = memo(ProductDetailInner, areEqual);

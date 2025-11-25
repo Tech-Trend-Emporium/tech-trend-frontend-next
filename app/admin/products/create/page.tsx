@@ -1,51 +1,75 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { AdminFormTemplate, ProductForm } from "@/src/components";
 import { CategoryService, ProductService } from "@/src/services";
-import { CategoryResponse, CreateProductRequest } from "@/src/models";
+import type { CategoryResponse, CreateProductRequest, UpdateProductRequest } from "@/src/models";
 import { toastSuccess, toastError } from "@/src/lib";
-import axios from "axios";
 
 
-export default function CreateProductPage() {
+const CreateProductPageInner = () => {
     const router = useRouter();
+
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [categories, setCategories] = useState<string[]>([]);
 
+    const mounted = useRef(true);
     useEffect(() => {
-        CategoryService.list({ skip: 0, take: 100 })
-            .then(r => setCategories(r.items.map((c: CategoryResponse) => c.name)))
-            .catch(() => toastError("Failed to fetch categories"));
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
     }, []);
 
-    const handleSubmit = async (data: CreateProductRequest) => {
-        setIsLoading(true); setErrorMessage(null);
+    const loadCategories = useCallback(async () => {
         try {
-            await ProductService.create(data);
-            toastSuccess("Product created successfully");
-            router.push("/admin/products");
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setErrorMessage(
-                    error.response?.data?.message || "Failed to create product"
-                );
-            } else {
-                setErrorMessage("Unexpected error occurred");
-            }
-        } finally {
-            setIsLoading(false);
+            const r = await CategoryService.list({ skip: 0, take: 100 });
+            if (!mounted.current) return;
+            setCategories(r.items.map((c: CategoryResponse) => c.name));
+        } catch {
+            toastError("Failed to fetch categories");
         }
-    };
+    }, []);
 
-    const handleSubmitWrapper = (payload: unknown) => {
-        void handleSubmit(payload as CreateProductRequest);
-    };
+    useEffect(() => {
+        void loadCategories();
+    }, [loadCategories]);
 
-    return (
-        <AdminFormTemplate title="Create Product" onBack={() => router.back()}>
+    const handleBack = useCallback(() => router.back(), [router]);
+
+    const handleSubmit = useCallback(
+        async (data: CreateProductRequest) => {
+            setIsLoading(true);
+            setErrorMessage(null);
+            try {
+                await ProductService.create(data);
+                toastSuccess("Product created successfully");
+                router.push("/admin/products");
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    setErrorMessage(error.response?.data?.message || "Failed to create product");
+                } else {
+                    setErrorMessage("Unexpected error occurred");
+                }
+            } finally {
+                if (mounted.current) setIsLoading(false);
+            }
+        },
+        [router]
+    );
+
+    const handleSubmitWrapper = useCallback(
+        (payload: CreateProductRequest | UpdateProductRequest) => {
+            void handleSubmit(payload as CreateProductRequest);
+        },
+        [handleSubmit]
+    );
+
+    const form = useMemo(
+        () => (
             <ProductForm
                 mode="create"
                 categories={categories}
@@ -53,6 +77,15 @@ export default function CreateProductPage() {
                 isLoading={isLoading}
                 errorMessage={errorMessage}
             />
+        ),
+        [categories, handleSubmitWrapper, isLoading, errorMessage]
+    );
+
+    return (
+        <AdminFormTemplate title="Create Product" onBack={handleBack}>
+            {form}
         </AdminFormTemplate>
     );
-}
+};
+
+export default memo(CreateProductPageInner);

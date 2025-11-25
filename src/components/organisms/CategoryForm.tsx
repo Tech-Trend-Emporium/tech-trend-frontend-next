@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { Form, InputField } from "@/src/components";
 import type { CreateCategoryRequest, UpdateCategoryRequest, CategoryResponse } from "@/src/models";
@@ -12,12 +12,12 @@ type Inputs = {
     name: string;
 };
 
-export const CategoryForm = ({
+const CategoryFormComponent = ({
     mode,
     initial,
     onSubmit,
     isLoading,
-    errorMessage
+    errorMessage,
 }: {
     mode: Mode;
     initial?: CategoryResponse;
@@ -29,26 +29,45 @@ export const CategoryForm = ({
         control,
         handleSubmit,
         reset,
-        formState: { errors, isValid, isDirty }
+        formState: { errors, isValid, isDirty },
     } = useForm<Inputs>({
         mode: "onChange",
-        defaultValues: { name: initial?.name ?? "" }
+        defaultValues: { name: initial?.name ?? "" },
     });
 
     useEffect(() => {
         if (initial) reset({ name: initial.name });
     }, [initial, reset]);
 
-    const submitText = mode === "create" ? "Create Category" : "Update Category";
-    const disabled = mode === "create"
-        ? !isValid || isLoading
-        : !isValid || !isDirty || isLoading;
-
     const nameVal = useWatch({ control, name: "name", defaultValue: initial?.name ?? "" });
+
+    const submitText = useMemo(
+        () => (mode === "create" ? "Create Category" : "Update Category"),
+        [mode]
+    );
+
+    const disabled = useMemo(() => {
+        const base = !isValid || isLoading;
+        return mode === "create" ? base : base || !isDirty;
+    }, [mode, isValid, isDirty, isLoading]);
+
+    const nameRules = useMemo(
+        () => ({
+            required: "The field Name is required.",
+            minLength: { value: 3, message: "The field Name must be at least 3 characters." },
+            maxLength: { value: 120, message: "The field Name must be at most 120 characters." },
+            pattern: {
+                value: /^[a-zA-Z0-9\s\-\.\,&']+$/,
+                message:
+                    "The field Name can only contain letters, numbers, spaces, hyphens, periods, commas, ampersands, and apostrophes.",
+            },
+        }),
+        []
+    );
 
     return (
         <Form
-            onSubmit={handleSubmit(({ name }) => onSubmit({ name }))}
+            onSubmit={handleSubmit(({ name }) => onSubmit({ name: name.trim() }))}
             submitButton={{ text: submitText, disabled, isLoading, variant: "dark" }}
             errorMessage={errorMessage}
             className="space-y-5"
@@ -56,15 +75,7 @@ export const CategoryForm = ({
             <Controller
                 name="name"
                 control={control}
-                rules={{
-                    required: "The field Name is required.",
-                    minLength: { value: 3, message: "The field Name must be at least 3 characters." },
-                    maxLength: { value: 120, message: "The field Name must be at most 120 characters." },
-                    pattern: {
-                        value: /^[a-zA-Z0-9\s\-\.\,&']+$/,
-                        message: "The field Name can only contain letters, numbers, spaces, hyphens, periods, commas, ampersands, and apostrophes."
-                    }
-                }}
+                rules={nameRules}
                 render={({ field }) => (
                     <>
                         <InputField
@@ -82,4 +93,14 @@ export const CategoryForm = ({
             />
         </Form>
     );
-}
+};
+
+export const CategoryForm = memo(CategoryFormComponent, (prev, next) => {
+    return (
+        prev.mode === next.mode &&
+        prev.isLoading === next.isLoading &&
+        prev.errorMessage === next.errorMessage &&
+        prev.initial === next.initial &&
+        prev.onSubmit === next.onSubmit
+    );
+});
