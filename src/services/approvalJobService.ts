@@ -4,7 +4,7 @@ import type { ApprovalJobResponse, ApprovalJobResponseRaw, DecideApprovalJobRequ
 
 const BASE = "/ApprovalJob";
 
-const mapApprovalJob = (j: ApprovalJobResponseRaw): ApprovalJobResponse => ({
+export const mapApprovalJob = (j: ApprovalJobResponseRaw): ApprovalJobResponse => ({
     ...j,
     requestedAt: new Date(j.requestedAt),
     decidedAt: j.decidedAt ? new Date(j.decidedAt) : null,

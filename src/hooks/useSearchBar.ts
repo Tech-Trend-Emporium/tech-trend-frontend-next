@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCachedData, levenshtein } from "@/src/utils";
 import { ProductService } from "@/src/services";
@@ -21,6 +21,7 @@ export const useSearchBar = (): UseSearchBarReturn => {
     const [suggestions, setSuggestions] = useState<
       { title: string; id: string; distance: number }[]
     >([]);
+
     
     const handleSearchChange = (value: string) => {
       setSearchValue(value);
@@ -51,20 +52,48 @@ export const useSearchBar = (): UseSearchBarReturn => {
     };
 
     const handleSearchSubmit = async (value: string) => {
-    if (!value.trim()) return;
+     setSearchValue(value);
 
-    try {
-      const result = await ProductService.getByName(value); 
+const term = value.trim().toLowerCase();
+if (!term) return;
 
-      if (!result) {
-        return;
-      }
+const cached = getCachedData();
+if (!cached.products || cached.products.length === 0) {
+  setSuggestions([]);
+  return;
+}
 
-      //router.push(`/shoplist/${result.id}`);
-    } catch (error) {
-      console.error("Search API error:", error);
-      //router.push("/shoplist/not-found");
-    }
+
+const filtered = cached.products.filter((p: any) =>
+  p.title.toLowerCase().trim().includes(term)
+);
+
+console.log("Filtered candidates:", filtered);
+
+
+const candidates = filtered.length > 0 ? filtered : cached.products;
+
+
+const scored = candidates.map((p: any) => ({
+  id: p.id,
+  title: p.title,
+  distance: levenshtein(term, p.title.toLowerCase())
+}));
+
+console.log("Scored results:", scored);
+
+
+const best = scored
+  .sort((a: any, b: any) => a.distance - b.distance)
+  .slice(0, 2);
+
+console.log("Best:", best);
+
+if (best.length > 0) {
+  router.push(`/shoplist/${best[0].id}`);
+}
+
+
   };
     const handleSuggestionClick = (id: string) => {
       router.push(`/shoplist/${id}`);

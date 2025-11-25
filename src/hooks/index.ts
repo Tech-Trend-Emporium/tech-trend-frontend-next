@@ -9,6 +9,7 @@ export * from "./usePasswordRecovery";
 export * from "./useProductDetail";
 export * from "./useProducts";
 export * from "./useSearchBar";
+export * from "./useSeedDataBase";
 export * from "./useSignIn";
 export * from "./useSignUp";
 export * from "./useWishList";
