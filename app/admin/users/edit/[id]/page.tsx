@@ -1,3 +1,5 @@
+"use client";
+
 import { AdminFormTemplate, LoadingScreen, UserForm } from "@/src/components";
 import { toastError, toastSuccess } from "@/src/lib";
 import { UpdateUserRequest, UserResponse } from "@/src/models";
