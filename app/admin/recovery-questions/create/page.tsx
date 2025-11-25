@@ -1,20 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { memo, useCallback, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { AdminFormTemplate, RecoveryQuestionForm } from "@/src/components";
 import { RecoveryQuestionService } from "@/src/services";
 import type { CreateRecoveryQuestionRequest } from "@/src/models";
 import { toastSuccess } from "@/src/lib";
 
 
-export default function CreateRecoveryQuestionPage() {
+function CreateRecoveryQuestionPageInner() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const handleSubmit = async (data: CreateRecoveryQuestionRequest) => {
+    const goBack = useCallback(() => router.back(), [router]);
+
+    const handleSubmit = useCallback(async (data: CreateRecoveryQuestionRequest) => {
         setIsLoading(true);
         setErrorMessage(null);
         try {
@@ -30,10 +32,10 @@ export default function CreateRecoveryQuestionPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [router]);
 
     return (
-        <AdminFormTemplate title="Create Recovery Question" onBack={() => router.back()}>
+        <AdminFormTemplate title="Create Recovery Question" onBack={goBack}>
             <RecoveryQuestionForm
                 mode="create"
                 onSubmit={handleSubmit}
@@ -43,3 +45,5 @@ export default function CreateRecoveryQuestionPage() {
         </AdminFormTemplate>
     );
 }
+
+export default memo(CreateRecoveryQuestionPageInner);

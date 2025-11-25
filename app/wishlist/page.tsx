@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useWishList } from "@/src/hooks";
 import { useCart } from "@/src/hooks";
@@ -7,35 +8,33 @@ import { WishListItem, WishListSummary, EmptyWishList } from "@/src/components";
 import { FiArrowLeft } from "react-icons/fi";
 
 
-export default function WishListPage() {
+const WishListPageInner = () => {
     const router = useRouter();
-    const {
-        wishList,
-        isLoading,
-        error,
-        removeItem,
-        moveToCart,
-        clearWishList
-    } = useWishList();
+    const { wishList, isLoading, error, removeItem, moveToCart, clearWishList } = useWishList();
     const { refreshCart } = useCart();
 
-    const handleMoveToCart = async (productId: number) => {
-        await moveToCart(productId);
-        // Refresh cart to show updated items
-        await refreshCart();
-    };
+    const items = useMemo(() => wishList?.items ?? [], [wishList]);
+    const hasItems = items.length > 0;
 
-    const handleMoveAllToCart = async () => {
-        if (!wishList) return;
+    const handleMoveToCart = useCallback(
+        async (productId: number) => {
+            await moveToCart(productId);
+            await refreshCart();
+        },
+        [moveToCart, refreshCart]
+    );
 
-        // Move all items one by one
-        for (const item of wishList.items) {
-            await moveToCart(item.productId);
+    const handleMoveAllToCart = useCallback(async () => {
+        if (!hasItems) return;
+        for (const it of items) {
+            await moveToCart(it.productId);
         }
         await refreshCart();
-    };
+    }, [hasItems, items, moveToCart, refreshCart]);
 
-    // Loading state
+    const handleRemove = useCallback((productId: number) => removeItem(productId), [removeItem]);
+
+    // Loading
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4 py-10">
@@ -55,14 +54,12 @@ export default function WishListPage() {
         );
     }
 
-    // Error state
+    // Error
     if (error) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                        Something went wrong
-                    </h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Something went wrong</h2>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
                     <button
                         onClick={() => window.location.reload()}
@@ -74,8 +71,6 @@ export default function WishListPage() {
             </div>
         );
     }
-
-    const hasItems = wishList && wishList.items.length > 0;
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -89,12 +84,10 @@ export default function WishListPage() {
                         <FiArrowLeft className="w-4 h-4" />
                         Continue Shopping
                     </button>
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
-                        My Wish List
-                    </h1>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">My Wish List</h1>
                     {hasItems && (
                         <p className="text-gray-600 dark:text-gray-400 mt-2">
-                            {wishList.items.length} item{wishList.items.length !== 1 ? "s" : ""} saved for later
+                            {items.length} item{items.length !== 1 ? "s" : ""} saved for later
                         </p>
                     )}
                 </div>
@@ -102,23 +95,23 @@ export default function WishListPage() {
                 {/* Content */}
                 {hasItems ? (
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
-                        {/* Wish List Items */}
+                        {/* Items */}
                         <div className="space-y-4">
-                            {wishList.items.map((item) => (
+                            {items.map((item) => (
                                 <WishListItem
                                     key={item.productId}
                                     item={item}
                                     onMoveToCart={handleMoveToCart}
-                                    onRemove={removeItem}
+                                    onRemove={handleRemove}
                                     productImage={item.imageUrl}
                                 />
                             ))}
                         </div>
 
-                        {/* Summary Sidebar */}
+                        {/* Summary */}
                         <div className="lg:sticky lg:top-8 h-fit">
                             <WishListSummary
-                                wishList={wishList}
+                                wishList={wishList!}
                                 onClearWishList={clearWishList}
                                 onMoveAllToCart={handleMoveAllToCart}
                             />
@@ -131,3 +124,5 @@ export default function WishListPage() {
         </div>
     );
 }
+
+export default memo(WishListPageInner);

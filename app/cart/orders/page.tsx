@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { useRouter } from "next/navigation";
 import { CartService } from "@/src/services";
 import { Button, OrdersTable, Pagination } from "@/src/components";
@@ -10,7 +10,7 @@ import { FiArrowLeft, FiPackage } from "react-icons/fi";
 
 const ITEMS_PER_PAGE = 10;
 
-export default function OrdersPage() {
+const OrdersPageInner = () => {
     const router = useRouter();
     const [orders, setOrders] = useState<OrderResponse[]>([]);
     const [total, setTotal] = useState(0);
@@ -18,25 +18,30 @@ export default function OrdersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+    const totalPages = useMemo(() => Math.ceil(total / ITEMS_PER_PAGE), [total]);
+    const isEmpty = useMemo(() => !isLoading && orders.length === 0 && page === 1, [isLoading, orders.length, page]);
 
-    const fetchOrders = useCallback(async () => {
+    const fetchOrders = useCallback(async (signal?: AbortSignal) => {
         setIsLoading(true);
         setError(null);
         try {
             const skip = (page - 1) * ITEMS_PER_PAGE;
             const data = await CartService.listMyOrders({ skip, take: ITEMS_PER_PAGE });
+            if (signal?.aborted) return;
             setOrders(data.items);
             setTotal(data.total);
         } catch (err) {
+            if (signal?.aborted) return;
             setError(err instanceof Error ? err.message : "Failed to load orders");
         } finally {
-            setIsLoading(false);
+            if (!signal?.aborted) setIsLoading(false);
         }
     }, [page]);
 
     useEffect(() => {
-        fetchOrders();
+        const ac = new AbortController();
+        fetchOrders(ac.signal);
+        return () => ac.abort();
     }, [fetchOrders]);
 
     if (error) {
@@ -55,8 +60,6 @@ export default function OrdersPage() {
             </div>
         );
     }
-
-    const isEmpty = !isLoading && orders.length === 0 && page === 1;
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
@@ -116,4 +119,6 @@ export default function OrdersPage() {
             </div>
         </div>
     );
-}
+};
+
+export default memo(OrdersPageInner);

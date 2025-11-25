@@ -1,49 +1,65 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { AdminFormTemplate, CouponForm } from "@/src/components";
 import { CouponService } from "@/src/services";
-import type { CreateCouponRequest } from "@/src/models";
+import type { CreateCouponRequest, UpdateCouponRequest } from "@/src/models";
 import { toastSuccess } from "@/src/lib";
 
 
-export default function CreateCouponPage() {
+const CreateCouponPageInner = () => {
     const router = useRouter();
+
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const handleSubmit = async (data: CreateCouponRequest) => {
-        setIsLoading(true);
-        setErrorMessage(null);
-        try {
-            await CouponService.create(data);
-            toastSuccess("Coupon created successfully");
-            router.push("/admin/coupons");
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setErrorMessage(error.response?.data?.message || "Failed to create coupon");
-            } else {
-                setErrorMessage("Unexpected error occurred");
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const mounted = useRef(true);
+    useEffect(() => {
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
+    }, []);
 
-    const handleSubmitWrapper = (payload: unknown) => {
-        void handleSubmit(payload as CreateCouponRequest);
-    };
+    const handleSubmit = useCallback((data: CreateCouponRequest | UpdateCouponRequest) => {
+        if (isLoading) return;
+        if (mounted.current) {
+            setIsLoading(true);
+            setErrorMessage(null);
+        }
+
+        (async () => {
+            try {
+                await CouponService.create(data as CreateCouponRequest);
+                toastSuccess("Coupon created successfully");
+                router.push("/admin/coupons");
+            } catch (error) {
+                if (!mounted.current) return;
+                if (axios.isAxiosError(error)) {
+                    setErrorMessage(error.response?.data?.message || "Failed to create coupon");
+                } else {
+                    setErrorMessage("Unexpected error occurred");
+                }
+            } finally {
+                if (mounted.current) setIsLoading(false);
+            }
+        })();
+    }, [isLoading, router]);
+
+    const onBack = useCallback(() => router.back(), [router]);
 
     return (
-        <AdminFormTemplate title="Create Coupon" onBack={() => router.back()}>
+        <AdminFormTemplate title="Create Coupon" onBack={onBack}>
             <CouponForm
                 mode="create"
-                onSubmit={handleSubmitWrapper}
+                onSubmit={handleSubmit}
                 isLoading={isLoading}
                 errorMessage={errorMessage}
             />
         </AdminFormTemplate>
     );
-}
+};
+
+export default memo(CreateCouponPageInner);

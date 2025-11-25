@@ -1,13 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { memo, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AuthTemplate, RecoveryVerifyForm, ResetPasswordForm } from "@/src/components";
 import { usePasswordRecovery } from "@/src/hooks";
 import { FiCheckCircle, FiArrowLeft } from "react-icons/fi";
 
 
-export default function ForgotPasswordPage() {
+const ForgotPasswordPageInner = () => {
     const router = useRouter();
     const {
         securityQuestions,
@@ -24,6 +25,9 @@ export default function ForgotPasswordPage() {
         handleReset,
     } = usePasswordRecovery();
 
+    const verifyIsLoading = useMemo(() => isVerifying || loadingQuestions, [isVerifying, loadingQuestions]);
+    const canReset = useMemo(() => Boolean(resetToken && tokenExpiresAt), [resetToken, tokenExpiresAt]);
+
     return (
         <AuthTemplate imageSrc="/icon.png" imageAlt="Password recovery illustration">
             {/* Step: Verify Identity */}
@@ -38,7 +42,7 @@ export default function ForgotPasswordPage() {
 
                     <RecoveryVerifyForm
                         securityQuestions={securityQuestions}
-                        isLoading={isVerifying || loadingQuestions}
+                        isLoading={verifyIsLoading}
                         errorMessage={verifyError}
                         onSubmit={handleVerify}
                     />
@@ -55,7 +59,7 @@ export default function ForgotPasswordPage() {
             )}
 
             {/* Step: Reset Password */}
-            {currentStep === "reset" && resetToken && tokenExpiresAt && (
+            {currentStep === "reset" && canReset && (
                 <>
                     <button
                         onClick={goBackToVerify}
@@ -73,8 +77,8 @@ export default function ForgotPasswordPage() {
                     </p>
 
                     <ResetPasswordForm
-                        resetToken={resetToken}
-                        expiresAt={tokenExpiresAt}
+                        resetToken={resetToken!}
+                        expiresAt={tokenExpiresAt!}
                         isLoading={isResetting}
                         errorMessage={resetError}
                         onSubmit={handleReset}
@@ -108,3 +112,5 @@ export default function ForgotPasswordPage() {
         </AuthTemplate>
     );
 }
+
+export default memo(ForgotPasswordPageInner);

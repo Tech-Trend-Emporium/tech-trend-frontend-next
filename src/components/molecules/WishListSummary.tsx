@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { FiTrash2, FiShoppingCart } from "react-icons/fi";
 import type { WishListResponse } from "@/src/models";
 
@@ -11,25 +11,31 @@ interface WishListSummaryProps {
     onMoveAllToCart?: () => Promise<void>;
 }
 
-export const WishListSummary = ({
-    wishList,
-    onClearWishList,
-    onMoveAllToCart,
-}: WishListSummaryProps) => {
-    const [isClearing, setIsClearing] = useState(false);
-    const [isMovingAll, setIsMovingAll] = useState(false);
+const WishListSummaryInner = ({ wishList, onClearWishList, onMoveAllToCart }: WishListSummaryProps) => {
+    const [isClearing, setIsClearing] = useBoolean(false);
+    const [isMovingAll, setIsMovingAll] = useBoolean(false);
 
-    const totalValue = wishList.items.reduce((sum, item) => sum + item.price, 0);
     const itemCount = wishList.items.length;
+    const totalValue = useMemo(
+        () => wishList.items.reduce((sum, item) => sum + item.unitPrice, 0),
+        [wishList.items]
+    );
+
+    const createdAtText = useMemo(
+        () =>
+            wishList.createdAt.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+            }),
+        [wishList.createdAt]
+    );
 
     const handleClear = async () => {
         if (!confirm("Are you sure you want to clear your wish list?")) return;
-
         setIsClearing(true);
         try {
             await onClearWishList();
-        } catch {
-            // Error handled in parent
         } finally {
             setIsClearing(false);
         }
@@ -37,12 +43,9 @@ export const WishListSummary = ({
 
     const handleMoveAll = async () => {
         if (!onMoveAllToCart) return;
-
         setIsMovingAll(true);
         try {
             await onMoveAllToCart();
-        } catch {
-            // Error handled in parent
         } finally {
             setIsMovingAll(false);
         }
@@ -50,9 +53,7 @@ export const WishListSummary = ({
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 p-6">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                Wish List Summary
-            </h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Wish List Summary</h2>
 
             {/* Stats */}
             <div className="space-y-3 mb-6">
@@ -64,23 +65,14 @@ export const WishListSummary = ({
                 </div>
                 <div className="flex justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400">Total Value</span>
-                    <span className="font-bold text-gray-900 dark:text-gray-100">
-                        ${totalValue.toFixed(2)}
-                    </span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">${totalValue.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400">Created</span>
-                    <span className="text-gray-900 dark:text-gray-100">
-                        {wishList.createdAt.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                        })}
-                    </span>
+                    <span className="text-gray-900 dark:text-gray-100">{createdAtText}</span>
                 </div>
             </div>
 
-            {/* Divider */}
             <div className="border-t border-gray-200 dark:border-gray-700 my-4" />
 
             {/* Actions */}
@@ -116,3 +108,27 @@ export const WishListSummary = ({
         </div>
     );
 };
+
+const useBoolean = (initial = false) =>{
+    const [v, setV] = useState(initial);
+    return [v, setV] as const;
+}
+
+const areEqualSummary = (prev: Readonly<WishListSummaryProps>, next: Readonly<WishListSummaryProps>) => {
+    const a = prev.wishList.items;
+    const b = next.wishList.items;
+
+    const sameLength = a.length === b.length;
+    const sum = (xs: typeof a) => xs.reduce((s, it) => s + it.unitPrice, 0);
+    const sameTotal = sum(a) === sum(b);
+
+    return (
+        sameLength &&
+        sameTotal &&
+        prev.wishList.createdAt.getTime() === next.wishList.createdAt.getTime() &&
+        prev.onClearWishList === next.onClearWishList &&
+        prev.onMoveAllToCart === next.onMoveAllToCart
+    );
+};
+
+export const WishListSummary = memo(WishListSummaryInner, areEqualSummary);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { Form, InputField } from "@/src/components";
 import type { CreateRecoveryQuestionRequest, UpdateRecoveryQuestionRequest, RecoveryQuestionResponse } from "@/src/models";
@@ -12,37 +12,52 @@ type Inputs = {
     question: string;
 };
 
-export const RecoveryQuestionForm = ({
-    mode,
-    initial,
-    onSubmit,
-    isLoading,
-    errorMessage
-}: {
+interface Props {
     mode: Mode;
     initial?: RecoveryQuestionResponse;
     onSubmit: (payload: CreateRecoveryQuestionRequest | UpdateRecoveryQuestionRequest) => void;
     isLoading: boolean;
     errorMessage: string | null;
-}) => {
+}
+
+const RecoveryQuestionFormInner = ({
+    mode,
+    initial,
+    onSubmit,
+    isLoading,
+    errorMessage,
+}: Props) => {
     const {
         control,
         handleSubmit,
         reset,
-        formState: { errors, isValid, isDirty }
+        formState: { errors, isValid, isDirty },
     } = useForm<Inputs>({
         mode: "onChange",
-        defaultValues: { question: initial?.question ?? "" }
+        defaultValues: { question: initial?.question ?? "" },
     });
 
     useEffect(() => {
-        if (initial) reset({ question: initial.question });
+        if (initial) {
+            reset({ question: initial.question });
+        }
     }, [initial, reset]);
 
-    const submitText = mode === "create" ? "Create Recovery Question" : "Update Recovery Question";
-    const disabled = mode === "create" ? !isValid || isLoading : !isValid || !isDirty || isLoading;
+    const questionVal = useWatch({
+        control,
+        name: "question",
+        defaultValue: initial?.question ?? "",
+    });
 
-    const questionVal = useWatch({ control, name: "question", defaultValue: initial?.question ?? "" });
+    const submitText = useMemo(
+        () => (mode === "create" ? "Create Recovery Question" : "Update Recovery Question"),
+        [mode]
+    );
+
+    const disabled = useMemo(() => {
+        const base = !isValid || isLoading;
+        return mode === "create" ? base : base || !isDirty;
+    }, [mode, isValid, isDirty, isLoading]);
 
     return (
         <Form
@@ -60,7 +75,7 @@ export const RecoveryQuestionForm = ({
                 rules={{
                     required: "Question is required.",
                     minLength: { value: 1, message: "Question must be between 1 and 2000 characters." },
-                    maxLength: { value: 2000, message: "Question must be between 1 and 2000 characters." }
+                    maxLength: { value: 2000, message: "Question must be between 1 and 2000 characters." },
                 }}
                 render={({ field }) => (
                     <>
@@ -80,3 +95,15 @@ export const RecoveryQuestionForm = ({
         </Form>
     );
 };
+
+const areEqual = (prev: Readonly<Props>, next: Readonly<Props>) => {
+    return (
+        prev.mode === next.mode &&
+        prev.initial === next.initial &&
+        prev.onSubmit === next.onSubmit &&
+        prev.isLoading === next.isLoading &&
+        prev.errorMessage === next.errorMessage
+    );
+};
+
+export const RecoveryQuestionForm = memo(RecoveryQuestionFormInner, areEqual);

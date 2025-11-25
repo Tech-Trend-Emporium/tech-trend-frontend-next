@@ -1,8 +1,9 @@
 import { ErrorTemplate } from "@/src/components";
 import { Lock } from "lucide-react";
+import { memo } from "react";
 
 
-export default function ForbiddenPage() {
+const ForbiddenPageInner = () => {
     return (
         <ErrorTemplate
             code="403"
@@ -12,3 +13,5 @@ export default function ForbiddenPage() {
         />
     );
 };
+
+export default memo(ForbiddenPageInner);

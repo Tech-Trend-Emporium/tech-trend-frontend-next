@@ -50,7 +50,7 @@ export const useProductDetail = (productId: string): UseProductReturn => {
             }
 
             const data = await ProductService.getById(id);
-            setProduct(toProductDetail(data));
+            setProduct(toProductDetail(data)); 
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to fetch product";
             setError(message);

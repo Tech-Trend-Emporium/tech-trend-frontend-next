@@ -1,12 +1,15 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/src/components";
 import { FiGift } from "react-icons/fi";
 
 
-export const EmptyWishList = () => {
+const EmptyWishListInner = () => {
     const router = useRouter();
+    const goShop = useCallback(() => router.push("/shoplist"), [router]);
+    const goHome = useCallback(() => router.push("/"), [router]);
 
     return (
         <div className="text-center py-16 sm:py-20 rounded-2xl bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700">
@@ -14,29 +17,22 @@ export const EmptyWishList = () => {
                 <FiGift className="w-10 h-10 text-purple-500 dark:text-purple-400" />
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Your wish list is empty
-            </h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your wish list is empty</h3>
 
             <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
                 Save items you love to your wish list and come back to them anytime.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button
-                    variant="dark"
-                    onClick={() => router.push("/shoplist")}
-                    className="px-6"
-                >
+                <Button variant="dark" onClick={goShop} className="px-6">
                     Start Shopping
                 </Button>
-                <Button
-                    variant="outline"
-                    onClick={() => router.push("/")}
-                >
+                <Button variant="outline" onClick={goHome}>
                     Explore Categories
                 </Button>
             </div>
         </div>
     );
 };
+
+export const EmptyWishList = memo(EmptyWishListInner);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { FiMinus, FiPlus, FiTrash2 } from "react-icons/fi";
 import type { CartItemResponse } from "@/src/models";
 import Image from "next/image";
@@ -12,36 +12,42 @@ interface CartItemProps {
     onRemove: (productId: number) => Promise<void>;
 }
 
-export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
+const CartItemInner = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [isRemoving, setIsRemoving] = useState(false);
 
-    const handleQuantityChange = async (delta: number) => {
-        const newQty = item.quantity + delta;
-        if (newQty < 1) return;
-        setIsUpdating(true);
-        try {
-            await onUpdateQuantity(item.productId, newQty);
-        } finally {
-            setIsUpdating(false);
-        }
-    };
+    const fmt = useMemo(
+        () => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }),
+        []
+    );
+    const formatPrice = useCallback((price: number) => fmt.format(price), [fmt]);
 
-    const handleRemove = async () => {
+    const handleQuantityChange = useCallback(
+        async (delta: number) => {
+            const newQty = item.quantity + delta;
+            if (newQty < 1) return;
+            setIsUpdating(true);
+            try {
+                await onUpdateQuantity(item.productId, newQty);
+            } finally {
+                setIsUpdating(false);
+            }
+        },
+        [item.productId, item.quantity, onUpdateQuantity]
+    );
+
+    const handleRemove = useCallback(async () => {
         setIsRemoving(true);
         try {
             await onRemove(item.productId);
         } finally {
             setIsRemoving(false);
         }
-    };
-
-    const formatPrice = (price: number) =>
-        new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price);
+    }, [onRemove, item.productId]);
 
     return (
         <div className={`flex flex-col sm:flex-row gap-4 p-4 sm:p-5 bg-white dark:bg-gray-800/80 rounded-xl shadow-sm ring-1 ring-gray-200 dark:ring-gray-700/60 transition-opacity ${isRemoving ? "opacity-50" : ""}`}>
-            {/* Product Image Placeholder */}
+            {/* Product Image */}
             <div className="w-full sm:w-24 h-32 sm:h-24 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center shrink-0">
                 <Image
                     src={item.imageUrl}
@@ -52,16 +58,12 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
                 />
             </div>
 
-            {/* Product Info */}
+            {/* Info */}
             <div className="flex-1 min-w-0">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
-                    {item.name}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Unit price: {formatPrice(item.unitPrice)}
-                </p>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{item.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Unit price: {formatPrice(item.unitPrice)}</p>
 
-                {/* Quantity Controls */}
+                {/* Quantity */}
                 <div className="flex items-center gap-3 mt-3">
                     <div className="flex items-center rounded-lg ring-1 ring-gray-200 dark:ring-gray-600">
                         <button
@@ -106,3 +108,18 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
         </div>
     );
 };
+
+const areEqual = (prev: Readonly<CartItemProps>, next: Readonly<CartItemProps>) => {
+    const a = prev.item;
+    const b = next.item;
+    const sameItem =
+        a.productId === b.productId &&
+        a.name === b.name &&
+        a.imageUrl === b.imageUrl &&
+        a.unitPrice === b.unitPrice &&
+        a.quantity === b.quantity &&
+        a.lineTotal === b.lineTotal;
+    return sameItem && prev.onUpdateQuantity === next.onUpdateQuantity && prev.onRemove === next.onRemove;
+};
+
+export const CartItem = memo(CartItemInner, areEqual);

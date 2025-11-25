@@ -1,8 +1,9 @@
 import { ErrorTemplate } from "@/src/components";
 import { SearchX } from "lucide-react";
+import { memo } from "react";
 
 
-export default function NotFoundPage() {
+const NotFoundPageInner = () => {
     return (
         <ErrorTemplate
             code="404"
@@ -12,3 +13,5 @@ export default function NotFoundPage() {
         />
     );
 };
+
+export default memo(NotFoundPageInner);

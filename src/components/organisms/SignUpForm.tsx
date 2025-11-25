@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { InputField, DropdownField, Form } from "@/src/components";
 import { SignUpRequest } from "@/src/models";
@@ -21,17 +22,34 @@ interface SignUpFormProps {
   onSubmit: (data: SignUpRequest) => void;
 }
 
-export const SignUpForm = ({
+const usernameRules = { required: "Username is required" } as const;
+const emailRules = {
+  required: "Email is required",
+  pattern: {
+    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    message: "Invalid email format",
+  },
+} as const;
+const passwordRules = {
+  required: "Password is required",
+  pattern: {
+    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/,
+    message: "Password must include upper, lower, number, symbol and 8+ chars",
+  },
+} as const;
+const securityQuestionRules = { required: "Select a security question" } as const;
+const securityAnswerRules = { required: "Provide an answer" } as const;
+
+const SignUpFormInner = ({
   securityQuestions,
   isLoading,
   errorMessage,
-  onSubmit
+  onSubmit,
 }: SignUpFormProps) => {
-
   const {
     control,
     handleSubmit,
-    formState: { errors, isValid }
+    formState: { errors, isValid },
   } = useForm<SignUpInputs>({
     mode: "onChange",
     defaultValues: {
@@ -40,11 +58,21 @@ export const SignUpForm = ({
       password: "",
       confirmPassword: "",
       securityQuestion: "",
-      securityAnswer: ""
-    }
+      securityAnswer: "",
+    },
   });
-  
+
   const passwordValue = useWatch({ control, name: "password" });
+
+  const submitBtn = useMemo(
+    () => ({
+      text: "Create Account",
+      disabled: !isValid || isLoading,
+      isLoading,
+      variant: "dark" as const,
+    }),
+    [isValid, isLoading]
+  );
 
   return (
     <Form
@@ -54,30 +82,23 @@ export const SignUpForm = ({
           email: formValues.email,
           password: formValues.password,
           recoveryQuestionId: securityQuestions.indexOf(formValues.securityQuestion) + 1,
-          recoveryAnswer: formValues.securityAnswer
+          recoveryAnswer: formValues.securityAnswer,
         };
-
         onSubmit(payload);
       })}
-      submitButton={{
-        text: "Create Account",
-        disabled: !isValid || isLoading,
-        isLoading,
-        variant: "dark",
-      }}
+      submitButton={submitBtn}
       errorMessage={errorMessage}
       className="space-y-5"
     >
-
       {/* Username */}
       <Controller
         name="username"
         control={control}
-        rules={{ required: "Username is required" }}
+        rules={usernameRules}
         render={({ field }) => (
           <>
             <InputField {...field} id="username" label="Username" placeholder="Choose a username" />
-            <p className="text-red-600 text-sm">{errors.username?.message}</p>
+            {errors.username?.message && <p className="text-red-600 text-sm">{errors.username.message}</p>}
           </>
         )}
       />
@@ -86,17 +107,11 @@ export const SignUpForm = ({
       <Controller
         name="email"
         control={control}
-        rules={{
-          required: "Email is required",
-          pattern: {
-            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Invalid email format"
-          }
-        }}
+        rules={emailRules}
         render={({ field }) => (
           <>
             <InputField {...field} id="email" label="Email" type="email" placeholder="your.email@example.com" />
-            <p className="text-red-600 text-sm">{errors.email?.message}</p>
+            {errors.email?.message && <p className="text-red-600 text-sm">{errors.email.message}</p>}
           </>
         )}
       />
@@ -105,17 +120,17 @@ export const SignUpForm = ({
       <Controller
         name="password"
         control={control}
-        rules={{
-          required: "Password is required",
-          pattern: {
-            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/,
-            message: "Password must include upper, lower, number, symbol and 8+ chars"
-          }
-        }}
+        rules={passwordRules}
         render={({ field }) => (
           <>
-            <InputField {...field} id="password" label="Password" type="password" placeholder="Create a strong password" />
-            <p className="text-red-600 text-sm">{errors.password?.message}</p>
+            <InputField
+              {...field}
+              id="password"
+              label="Password"
+              type="password"
+              placeholder="Create a strong password"
+            />
+            {errors.password?.message && <p className="text-red-600 text-sm">{errors.password.message}</p>}
           </>
         )}
       />
@@ -126,21 +141,29 @@ export const SignUpForm = ({
         control={control}
         rules={{
           required: "Confirm your password",
-          validate: (value) => value === passwordValue || "Passwords do not match"
+          validate: (value) => value === passwordValue || "Passwords do not match",
         }}
         render={({ field }) => (
           <>
-            <InputField {...field} id="confirmPassword" label="Confirm Password" type="password" placeholder="Re-enter password" />
-            <p className="text-red-600 text-sm">{errors.confirmPassword?.message}</p>
+            <InputField
+              {...field}
+              id="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              placeholder="Re-enter password"
+            />
+            {errors.confirmPassword?.message && (
+              <p className="text-red-600 text-sm">{errors.confirmPassword.message}</p>
+            )}
           </>
         )}
       />
 
-      {/* Dropdown */}
+      {/* Security Question */}
       <Controller
         name="securityQuestion"
         control={control}
-        rules={{ required: "Select a security question" }}
+        rules={securityQuestionRules}
         render={({ field }) => (
           <>
             <DropdownField
@@ -151,7 +174,9 @@ export const SignUpForm = ({
               selected={field.value}
               handleSelect={field.onChange}
             />
-            <p className="text-red-600 text-sm">{errors.securityQuestion?.message}</p>
+            {errors.securityQuestion?.message && (
+              <p className="text-red-600 text-sm">{errors.securityQuestion.message}</p>
+            )}
           </>
         )}
       />
@@ -160,15 +185,27 @@ export const SignUpForm = ({
       <Controller
         name="securityAnswer"
         control={control}
-        rules={{ required: "Provide an answer" }}
+        rules={securityAnswerRules}
         render={({ field }) => (
           <>
             <InputField {...field} id="securityAnswer" label="Answer" placeholder="Type your answer" />
-            <p className="text-red-600 text-sm">{errors.securityAnswer?.message}</p>
+            {errors.securityAnswer?.message && (
+              <p className="text-red-600 text-sm">{errors.securityAnswer.message}</p>
+            )}
           </>
         )}
       />
-
     </Form>
   );
+}
+
+const areEqual = (prev: Readonly<SignUpFormProps>, next: Readonly<SignUpFormProps>) => {
+  return (
+    prev.isLoading === next.isLoading &&
+    prev.errorMessage === next.errorMessage &&
+    prev.onSubmit === next.onSubmit &&
+    prev.securityQuestions === next.securityQuestions
+  );
 };
+
+export const SignUpForm = memo(SignUpFormInner, areEqual);

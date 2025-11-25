@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { memo, useEffect, useState, useCallback } from "react";
 
 
 interface ApprovalDecisionModalProps {
@@ -11,7 +11,7 @@ interface ApprovalDecisionModalProps {
     jobTitle?: string;
 }
 
-export const ApprovalDecisionModal = ({
+const ApprovalDecisionModalInner = ({
     isOpen,
     onClose,
     onConfirm,
@@ -31,12 +31,12 @@ export const ApprovalDecisionModal = ({
         }
     }, [isOpen]);
 
-    if (!isOpen) return null;
-
-    const handleConfirm = async () => {
+    const handleConfirm = useCallback(async () => {
         if (approve === null) return;
         await onConfirm(approve, reason.trim() ? reason.trim() : null);
-    };
+    }, [approve, reason, onConfirm]);
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -61,8 +61,7 @@ export const ApprovalDecisionModal = ({
                             className={`px-3 py-2 rounded-lg text-sm font-medium border transition
                 ${approve === true
                                     ? "bg-green-600 text-white border-green-700"
-                                    : "border-green-600 text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                }`}
+                                    : "border-green-600 text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"}`}
                         >
                             Approve
                         </button>
@@ -71,8 +70,7 @@ export const ApprovalDecisionModal = ({
                             className={`px-3 py-2 rounded-lg text-sm font-medium border transition
                 ${approve === false
                                     ? "bg-red-600 text-white border-red-700"
-                                    : "border-red-600 text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                }`}
+                                    : "border-red-600 text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"}`}
                         >
                             Deny
                         </button>
@@ -112,4 +110,6 @@ export const ApprovalDecisionModal = ({
             </div>
         </div>
     );
-}
+};
+
+export const ApprovalDecisionModal = memo(ApprovalDecisionModalInner);

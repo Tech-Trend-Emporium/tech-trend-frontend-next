@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { ProductService } from "../services";
-import { saveCache } from "../utils";
+import { ProductService } from "@/src/services";
+import { saveCache } from "@/src/utils";
+
 
 export const useSeedDataBase = () => {
   const [seeded, setSeeded] = useState(false);

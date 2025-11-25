@@ -1,14 +1,22 @@
 import { Role } from "@/src/models";
 
 
-export const checkAccess = (pathname: string, isAuthenticated: boolean, role: Role) => {
+const isAdminEmployee = (role?: Role) => role === "ADMIN" || role === "EMPLOYEE";
+const isShopper = (role?: Role) => role === "SHOPPER";
+
+export const checkAccess = (pathname: string, isAuthenticated: boolean, role?: Role) => {
     const adminEmployeeOnly = pathname.startsWith("/admin");
-    const shopperOnly =  pathname.startsWith("/favorites") ||pathname.startsWith("/shoplist") || pathname.startsWith("/wishlist") || pathname.startsWith("/cart");
-    
-    if (adminEmployeeOnly && !isAuthenticated ) return "/auth/sign-in";
-    if (adminEmployeeOnly && (role !== "ADMIN" && role !== "EMPLOYEE")) return "/forbidden";
-    if (shopperOnly && !isAuthenticated) return "/auth/sign-in";
-    if (shopperOnly && role !== "SHOPPER") return "/forbidden";
-    
+    const shopperOnly = pathname.startsWith("/favorites") || pathname.startsWith("/shoplist") || pathname.startsWith("/wishlist") || pathname.startsWith("/cart");
+
+    if (adminEmployeeOnly) {
+        if (!isAuthenticated) return "/auth/sign-in";
+        if (!isAdminEmployee(role)) return "/forbidden";
+    }
+
+    if (shopperOnly) {
+        if (!isAuthenticated) return "/auth/sign-in";
+        if (!isShopper(role)) return "/forbidden";
+    }
+
     return null;
 };
