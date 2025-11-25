@@ -1,8 +1,8 @@
 "use client";
 
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { CategoryService } from "@/src/services";
 import type { CategoryResponse, DeleteCategoryResult } from "@/src/models";
 import { toastSuccess, toastError } from "@/src/lib";
@@ -10,51 +10,105 @@ import { AdminListTemplate, CategoriesTable, ConfirmModal, Pagination } from "@/
 import { usePaginatedList } from "@/src/hooks";
 
 
-export default function CategoriesListPage() {
+const CategoriesListPageInner = () => {
     const router = useRouter();
 
-    const { items: categories, total, totalPages, page, setPage, loading, refresh, take} = 
-        usePaginatedList<CategoryResponse>(CategoryService.list, 10);
+    const {
+        items: categories,
+        total,
+        totalPages,
+        page,
+        setPage,
+        loading,
+        refresh,
+        take,
+    } = usePaginatedList<CategoryResponse>(CategoryService.list, 10);
 
     const [deleteModalId, setDeleteModalId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleDelete = async () => {
-        if (!deleteModalId) return;
+    const mountedRef = useRef(true);
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
+    const closeModal = useCallback(() => setDeleteModalId(null), []);
+
+    const handleCreate = useCallback(
+        () => router.push("/admin/categories/create"),
+        [router]
+    );
+
+    const handleEdit = useCallback(
+        (id: number) => router.push(`/admin/categories/edit/${id}`),
+        [router]
+    );
+
+    const requestRefreshKeepingPage = useCallback(
+        (p: number) => {
+            void refresh(p);
+        },
+        [refresh]
+    );
+
+    const handleDelete = useCallback(async () => {
+        if (!deleteModalId || isDeleting) return;
+
         setIsDeleting(true);
         try {
             const result: DeleteCategoryResult = await CategoryService.remove(deleteModalId);
 
             if (result.kind === "accepted") {
                 toastSuccess(result.data.message || "Category deletion pending approval");
-                refresh(page);
+                requestRefreshKeepingPage(page);
             } else {
                 toastSuccess("Category deleted successfully");
 
-                const isLastItemOnPage = categories.length === 1;
                 const newTotal = total - 1;
+                const isLastItemOnPage = categories.length === 1;
                 const maxIndexOnCurrentPage = (page - 1) * take;
 
-                if (isLastItemOnPage && page > 1 && newTotal <= maxIndexOnCurrentPage) {
-                    setPage(page - 1);
+                const nextPage =
+                    isLastItemOnPage && page > 1 && newTotal <= maxIndexOnCurrentPage
+                        ? page - 1
+                        : page;
+
+                if (nextPage !== page) {
+                    setPage(nextPage);
                 } else {
-                    refresh(page);
+                    requestRefreshKeepingPage(page);
                 }
             }
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                toastError(error.response?.data?.message || "Failed to delete category");
-            } else {
-                toastError("Unexpected error occurred");
-            }
+            const msg = axios.isAxiosError(error)
+                ? error.response?.data?.message || "Failed to delete category"
+                : "Unexpected error occurred";
+            toastError(msg);
         } finally {
+            if (!mountedRef.current) return;
             setIsDeleting(false);
-            setDeleteModalId(null);
+            closeModal();
         }
-    };
+    }, [
+        deleteModalId,
+        isDeleting,
+        categories.length,
+        page,
+        take,
+        total,
+        requestRefreshKeepingPage,
+        setPage,
+        closeModal,
+    ]);
 
-    const handleEdit = (id: number) => router.push(`/admin/categories/edit/${id}`);
-    const handleCreate = () => router.push("/admin/categories/create");
+    const onDeleteAsk = useCallback((id: number) => setDeleteModalId(id), []);
+    const canShowPagination = useMemo(
+        () => !loading && categories.length > 0,
+        [loading, categories.length]
+    );
 
     return (
         <>
@@ -63,10 +117,10 @@ export default function CategoriesListPage() {
                     categories={categories}
                     isLoading={loading}
                     onEdit={handleEdit}
-                    onDelete={(id) => setDeleteModalId(id)}
+                    onDelete={onDeleteAsk}
                 />
 
-                {!loading && categories.length > 0 && (
+                {canShowPagination && (
                     <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                         <Pagination
                             currentPage={page}
@@ -81,7 +135,7 @@ export default function CategoriesListPage() {
 
             <ConfirmModal
                 isOpen={deleteModalId !== null}
-                onClose={() => setDeleteModalId(null)}
+                onClose={closeModal}
                 onConfirm={handleDelete}
                 title="Confirm Delete"
                 message="Are you sure you want to delete this category? This action cannot be undone."
@@ -91,4 +145,6 @@ export default function CategoriesListPage() {
             />
         </>
     );
-}
+};
+
+export default memo(CategoriesListPageInner);

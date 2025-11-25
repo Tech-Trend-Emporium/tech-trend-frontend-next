@@ -1,8 +1,8 @@
 "use client";
 
+import { memo, useCallback, useMemo, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { CouponService } from "@/src/services";
 import type { CouponResponse } from "@/src/models";
 import { toastSuccess, toastError } from "@/src/lib";
@@ -10,16 +10,28 @@ import { AdminListTemplate, ConfirmModal, CouponsTable, Pagination } from "@/src
 import { usePaginatedList } from "@/src/hooks";
 
 
-export default function CouponsListPage() {
+const CouponsListPageInner = () => {
     const router = useRouter();
 
-    const { items: coupons, total, totalPages, page, setPage, loading, refresh, take } = 
-        usePaginatedList<CouponResponse>(CouponService.list, 10);
+    const {
+        items: coupons,
+        total,
+        totalPages,
+        page,
+        setPage,
+        loading,
+        refresh,
+        take,
+    } = usePaginatedList<CouponResponse>(CouponService.list, 10);
 
     const [deleteModalId, setDeleteModalId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleDelete = async () => {
+    const handleCreate = useCallback(() => router.push("/admin/coupons/create"), [router]);
+    const handleEdit = useCallback((id: number) => router.push(`/admin/coupons/edit/${id}`), [router]);
+    const closeModal = useCallback(() => setDeleteModalId(null), []);
+
+    const handleDelete = useCallback(async () => {
         if (!deleteModalId) return;
         setIsDeleting(true);
         try {
@@ -33,7 +45,7 @@ export default function CouponsListPage() {
             if (isLastItemOnPage && page > 1 && newTotal <= maxIndexOnCurrentPage) {
                 setPage(page - 1);
             } else {
-                refresh(page);
+                await refresh(page);
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -45,21 +57,17 @@ export default function CouponsListPage() {
             setIsDeleting(false);
             setDeleteModalId(null);
         }
-    };
+    }, [deleteModalId, total, coupons.length, page, take, setPage, refresh]);
 
-    const handleEdit = (id: number) => router.push(`/admin/coupons/edit/${id}`);
-    const handleCreate = () => router.push("/admin/coupons/create");
-
-    return (
-        <>
-            <AdminListTemplate title="Coupons" onCreateClick={handleCreate} entityName="Coupon">
+    const tableAndPagination = useMemo(
+        () => (
+            <>
                 <CouponsTable
                     coupons={coupons}
                     isLoading={loading}
                     onEdit={handleEdit}
-                    onDelete={(id) => setDeleteModalId(id)}
+                    onDelete={setDeleteModalId}
                 />
-
                 {!loading && coupons.length > 0 && (
                     <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                         <Pagination
@@ -71,11 +79,20 @@ export default function CouponsListPage() {
                         />
                     </div>
                 )}
+            </>
+        ),
+        [coupons, loading, handleEdit, page, totalPages, total, take, setPage]
+    );
+
+    return (
+        <>
+            <AdminListTemplate title="Coupons" onCreateClick={handleCreate} entityName="Coupon">
+                {tableAndPagination}
             </AdminListTemplate>
 
             <ConfirmModal
                 isOpen={deleteModalId !== null}
-                onClose={() => setDeleteModalId(null)}
+                onClose={closeModal}
                 onConfirm={handleDelete}
                 title="Confirm Delete"
                 message="Are you sure you want to delete this coupon? This action cannot be undone."
@@ -86,3 +103,5 @@ export default function CouponsListPage() {
         </>
     );
 }
+
+export default memo(CouponsListPageInner);

@@ -1,6 +1,7 @@
 export * from "./ApprovalDecisionModal";
 export * from "./ApprovalJobsTable";
 export * from "./Carousel";
+export * from "./CategoriesSection";
 export * from "./CategoriesTable";
 export * from "./CategoryForm";
 export * from "./CouponForm";
@@ -14,6 +15,8 @@ export * from "./Navbar";
 export * from "./OrdersTable";
 export * from "./ProductsTable";
 export * from "./ProductForm";
+export * from "./ProductsGrid";
+export * from "./ProductsSection";
 export * from "./RecoveryQuestionForm";
 export * from "./RecoveryQuestionsTable";
 export * from "./RecoveryVerifyForm";

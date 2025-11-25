@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { Form, InputField } from "@/src/components";
 import type { CreateCouponRequest, UpdateCouponRequest, CouponResponse } from "@/src/models";
@@ -18,24 +18,24 @@ type Inputs = {
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
-export function CouponForm({
+const CouponFormInner = ({
     mode,
     initial,
     onSubmit,
     isLoading,
-    errorMessage
+    errorMessage,
 }: {
     mode: Mode;
     initial?: CouponResponse;
     onSubmit: (payload: CreateCouponRequest | UpdateCouponRequest) => void;
     isLoading: boolean;
     errorMessage: string | null;
-}) {
+}) => {
     const {
         control,
         handleSubmit,
         reset,
-        formState: { errors, isValid, isDirty }
+        formState: { errors, isValid, isDirty },
     } = useForm<Inputs>({
         mode: "onChange",
         defaultValues: {
@@ -43,7 +43,7 @@ export function CouponForm({
             active: initial?.active ?? true,
             validFrom: initial?.validFrom ? formatYMD(initial.validFrom) : "",
             validTo: initial?.validTo ? formatYMD(initial.validTo) : "",
-        }
+        },
     });
 
     useEffect(() => {
@@ -57,8 +57,14 @@ export function CouponForm({
         }
     }, [initial, reset]);
 
-    const submitText = mode === "create" ? "Create Coupon" : "Update Coupon";
-    const disabled = mode === "create" ? !isValid || isLoading : !isValid || !isDirty || isLoading;
+    const submitText = useMemo(
+        () => (mode === "create" ? "Create Coupon" : "Update Coupon"),
+        [mode]
+    );
+    const disabled = useMemo(
+        () => (mode === "create" ? !isValid || isLoading : !isValid || !isDirty || isLoading),
+        [mode, isValid, isDirty, isLoading]
+    );
 
     const validFrom = useWatch({ control, name: "validFrom" });
 
@@ -99,7 +105,7 @@ export function CouponForm({
                 rules={{
                     required: "The field Discount is required.",
                     min: { value: 0.0, message: "The field Discount must be between 0.0 and 1.0." },
-                    max: { value: 1.0, message: "The field Discount must be between 0.0 and 1.0." }
+                    max: { value: 1.0, message: "The field Discount must be between 0.0 and 1.0." },
                 }}
                 render={({ field }) => (
                     <>
@@ -109,6 +115,8 @@ export function CouponForm({
                             label="Discount (0.0 - 1.0)"
                             type="number"
                             step="0.01"
+                            min="0"
+                            max="1"
                             placeholder="e.g. 0.15"
                         />
                         <p className="text-red-600 text-sm">{errors.discount?.message}</p>
@@ -124,17 +132,12 @@ export function CouponForm({
                     required: "The field ValidFrom is required.",
                     pattern: {
                         value: DATE_REGEX,
-                        message: "The field ValidFrom must be in the format YYYY-MM-DD."
-                    }
+                        message: "The field ValidFrom must be in the format YYYY-MM-DD.",
+                    },
                 }}
                 render={({ field }) => (
                     <>
-                        <InputField
-                            {...field}
-                            id="validFrom"
-                            label="Valid From"
-                            type="date"
-                        />
+                        <InputField {...field} id="validFrom" label="Valid From" type="date" />
                         <p className="text-red-600 text-sm">{errors.validFrom?.message}</p>
                     </>
                 )}
@@ -147,17 +150,11 @@ export function CouponForm({
                 rules={{
                     validate: (v) => {
                         if (!v) return true;
-                        if (!DATE_REGEX.test(v)) {
-                            return "The field ValidTo must be in the format  YYYY-MM-DD.";
-                        }
-                        if (validFrom && v <= validFrom) {
-                            return "The field ValidTo must be after ValidFrom field.";
-                        }
-                        if (v <= todayYMD) {
-                            return "The field ValidTo must be after current date.";
-                        }
+                        if (!DATE_REGEX.test(v)) return "The field ValidTo must be in the format  YYYY-MM-DD.";
+                        if (validFrom && v <= validFrom) return "The field ValidTo must be after ValidFrom field.";
+                        if (v <= todayYMD) return "The field ValidTo must be after current date.";
                         return true;
-                    }
+                    },
                 }}
                 render={({ field }) => (
                     <>
@@ -195,4 +192,6 @@ export function CouponForm({
             />
         </Form>
     );
-}
+};
+
+export const CouponForm = memo(CouponFormInner);

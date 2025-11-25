@@ -1,15 +1,15 @@
 "use client";
 
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import axios from "axios";
 import { AdminFormTemplate, ProductForm } from "@/src/components";
 import { CategoryService, ProductService } from "@/src/services";
-import { CategoryResponse, UpdateProductRequest, ProductResponse } from "@/src/models";
+import type { CategoryResponse, UpdateProductRequest, ProductResponse } from "@/src/models";
 import { toastSuccess, toastError } from "@/src/lib";
-import axios from "axios";
 
 
-export default function EditProductPage() {
+const EditProductPageInner = () => {
     const router = useRouter();
     const params = useParams();
     const productId = Number(params.id);
@@ -20,60 +20,83 @@ export default function EditProductPage() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [categories, setCategories] = useState<string[]>([]);
 
+    const mounted = useRef(true);
     useEffect(() => {
-        (async () => {
-            try {
-                const [p, cats] = await Promise.all([
-                    ProductService.getById(productId),
-                    CategoryService.list({ skip: 0, take: 100 })
-                ]);
-                setProduct(p);
-                setCategories(cats.items.map((c: CategoryResponse) => c.name));
-            } catch (error) {
-                if (axios.isAxiosError(error)) {
-                    toastError(
-                        error.response?.data?.message || "Failed to load product data"
-                    );
-                }
-                toastError("Failed to load product data");
-                router.push("/admin/products");
-            } finally {
-                setLoadingProduct(false);
-            }
-        })();
-    }, [productId, router]);
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
+    }, []);
 
-    const handleSubmit = async (data: UpdateProductRequest) => {
-        setSubmitting(true); setErrorMessage(null);
-        try {
-            await ProductService.update(productId, data);
-            toastSuccess("Product updated successfully");
+    const loadData = useCallback(async () => {
+        if (Number.isNaN(productId)) {
+            toastError("Invalid product id");
             router.push("/admin/products");
+            return;
+        }
+        setLoadingProduct(true);
+        try {
+            const [p, cats] = await Promise.all([
+                ProductService.getById(productId),
+                CategoryService.list({ skip: 0, take: 100 }),
+            ]);
+
+            if (!mounted.current) return;
+            setProduct(p);
+            setCategories(cats.items.map((c: CategoryResponse) => c.name));
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                setErrorMessage(
-                    error.response?.data?.message || "Failed to update product"
-                );
+                toastError(error.response?.data?.message || "Failed to load product data");
             } else {
-                setErrorMessage("Unexpected error occurred");
+                toastError("Failed to load product data");
             }
+            router.push("/admin/products");
         } finally {
-            setSubmitting(false);
+            if (mounted.current) setLoadingProduct(false);
         }
-    };
+    }, [productId, router]);
 
-    if (loadingProduct) {
-        return (
+    useEffect(() => {
+        void loadData();
+    }, [loadData]);
+
+    const handleBack = useCallback(() => router.back(), [router]);
+
+    const handleSubmit = useCallback(
+        async (data: UpdateProductRequest) => {
+            setSubmitting(true);
+            setErrorMessage(null);
+            try {
+                await ProductService.update(productId, data);
+                toastSuccess("Product updated successfully");
+                router.push("/admin/products");
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    setErrorMessage(error.response?.data?.message || "Failed to update product");
+                } else {
+                    setErrorMessage("Unexpected error occurred");
+                }
+            } finally {
+                if (mounted.current) setSubmitting(false);
+            }
+        },
+        [productId, router]
+    );
+
+    const loadingScreen = useMemo(
+        () => (
             <div className="h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 dark:border-gray-200"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 dark:border-gray-200" />
             </div>
-        );
-    }
+        ),
+        []
+    );
 
+    if (loadingProduct) return loadingScreen;
     if (!product) return null;
 
     return (
-        <AdminFormTemplate title="Edit Product" onBack={() => router.back()}>
+        <AdminFormTemplate title="Edit Product" onBack={handleBack}>
             <ProductForm
                 mode="edit"
                 initial={product}
@@ -84,4 +107,6 @@ export default function EditProductPage() {
             />
         </AdminFormTemplate>
     );
-}
+};
+
+export default memo(EditProductPageInner);

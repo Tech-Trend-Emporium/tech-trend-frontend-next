@@ -1,49 +1,73 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { AdminFormTemplate, CategoryForm } from "@/src/components";
 import { CategoryService } from "@/src/services";
 import type { CreateCategoryRequest } from "@/src/models";
 import { toastSuccess } from "@/src/lib";
 
 
-export default function CreateCategoryPage() {
+const CreateCategoryPageInner = () => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const handleSubmit = async (data: CreateCategoryRequest) => {
-        setIsLoading(true);
-        setErrorMessage(null);
-        try {
-            const res = await CategoryService.create(data);
-            if (res.kind === "accepted") {
-                toastSuccess(res.data.message || "Category creation pending approval");
-            } else {
-                toastSuccess("Category created successfully");
+    const mountedRef = useRef(true);
+    const submittingRef = useRef(false);
+
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
+    const onBack = useCallback(() => router.back(), [router]);
+
+    const handleSubmit = useCallback(
+        async (data: CreateCategoryRequest) => {
+            if (submittingRef.current) return;
+            submittingRef.current = true;
+            setIsLoading(true);
+            setErrorMessage(null);
+            try {
+                const res = await CategoryService.create(data);
+                if (res.kind === "accepted") {
+                    toastSuccess(res.data.message || "Category creation pending approval");
+                } else {
+                    toastSuccess("Category created successfully");
+                }
+                router.push("/admin/categories");
+            } catch (error) {
+                const msg = axios.isAxiosError(error)
+                    ? error.response?.data?.message || "Failed to create category"
+                    : "Unexpected error occurred";
+                if (mountedRef.current) setErrorMessage(msg);
+            } finally {
+                if (mountedRef.current) setIsLoading(false);
+                submittingRef.current = false;
             }
-            router.push("/admin/categories");
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setErrorMessage(error.response?.data?.message || "Failed to create category");
-            } else {
-                setErrorMessage("Unexpected error occurred");
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [router]
+    );
+
+    const formProps = useMemo(
+        () => ({
+            mode: "create" as const,
+            onSubmit: handleSubmit,
+            isLoading,
+            errorMessage,
+        }),
+        [handleSubmit, isLoading, errorMessage]
+    );
 
     return (
-        <AdminFormTemplate title="Create Category" onBack={() => router.back()}>
-            <CategoryForm
-                mode="create"
-                onSubmit={handleSubmit}
-                isLoading={isLoading}
-                errorMessage={errorMessage}
-            />
+        <AdminFormTemplate title="Create Category" onBack={onBack}>
+            <CategoryForm {...formProps} />
         </AdminFormTemplate>
     );
-}
+};
+
+export default memo(CreateCategoryPageInner);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useCart } from "@/src/hooks";
 
 
@@ -11,42 +11,49 @@ interface AddToCartButtonProps {
     className?: string;
 }
 
-export const AddToCartButton = ({
+const AddToCartButtonInner = ({
     productId,
     quantity = 1,
     variant = "full",
-    className = ""
+    className = "",
 }: AddToCartButtonProps) => {
     const { addItem } = useCart();
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const timerRef = useRef<number | null>(null);
 
-    const handleAddToCart = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) window.clearTimeout(timerRef.current);
+        };
+    }, []);
 
-        setIsLoading(true);
-        try {
-            await addItem({ productId, quantity });
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 2000);
-        } catch {
-            // Error handled by hook
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const handleAddToCart = useCallback(
+        async (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-    // Card variant - matches FavoriteButton style
+            setIsLoading(true);
+            try {
+                await addItem({ productId, quantity });
+                setSuccess(true);
+                timerRef.current = window.setTimeout(() => setSuccess(false), 2000);
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [addItem, productId, quantity]
+    );
+
     if (variant === "card") {
         return (
             <button
                 onClick={handleAddToCart}
                 disabled={isLoading}
                 className={`p-2 rounded-full bg-white/90 dark:bg-gray-700/90 
-                    hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 
-                    shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50 
-                    disabled:cursor-not-allowed ${className}`}
+                        hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 
+                        shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50 
+                        disabled:cursor-not-allowed ${className}`}
                 aria-label="Add to cart"
             >
                 {isLoading ? (
@@ -55,29 +62,11 @@ export const AddToCartButton = ({
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
                 ) : success ? (
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 text-green-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="20 6 9 17 4 12" />
                     </svg>
                 ) : (
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 text-gray-600 dark:text-gray-300"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <circle cx="9" cy="21" r="1" />
                         <circle cx="20" cy="21" r="1" />
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
@@ -87,15 +76,14 @@ export const AddToCartButton = ({
         );
     }
 
-    // Icon variant
     if (variant === "icon") {
         return (
             <button
                 onClick={handleAddToCart}
                 disabled={isLoading}
                 className={`p-2 rounded-lg transition-all ${success
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 hover:bg-gray-700 dark:hover:bg-gray-300"
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 hover:bg-gray-700 dark:hover:bg-gray-300"
                     } disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
                 aria-label="Add to cart"
             >
@@ -119,14 +107,13 @@ export const AddToCartButton = ({
         );
     }
 
-    // Full variant (default)
     return (
         <button
             onClick={handleAddToCart}
             disabled={isLoading}
             className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${success
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 hover:bg-gray-700 dark:hover:bg-gray-300"
+                ? "bg-green-500 text-white"
+                : "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 hover:bg-gray-700 dark:hover:bg-gray-300"
                 } disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
         >
             {isLoading ? (
@@ -157,3 +144,14 @@ export const AddToCartButton = ({
         </button>
     );
 };
+
+const areEqual = (prev: Readonly<AddToCartButtonProps>, next: Readonly<AddToCartButtonProps>) => {
+    return (
+        prev.productId === next.productId &&
+        prev.quantity === next.quantity &&
+        prev.variant === next.variant &&
+        prev.className === next.className
+    );
+};
+
+export const AddToCartButton = memo(AddToCartButtonInner, areEqual);

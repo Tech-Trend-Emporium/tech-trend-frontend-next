@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { ErrorActions, ErrorHeader } from "@/src/components";
+import { ErrorActions, ErrorHeader } from "../molecules";
+import { memo } from "react";
 
 
 interface ErrorTemplateProps {
@@ -10,7 +11,7 @@ interface ErrorTemplateProps {
     showSupportMessage?: boolean;
 }
 
-export const ErrorTemplate = ({ 
+const ErrorTemplateInner = ({ 
     code, 
     icon, 
     title, 
@@ -40,3 +41,5 @@ export const ErrorTemplate = ({
         </div>
     );
 };
+
+export const ErrorTemplate = memo(ErrorTemplateInner);

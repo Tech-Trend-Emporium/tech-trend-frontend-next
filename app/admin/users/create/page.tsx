@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { AdminFormTemplate, UserForm } from "@/src/components";
@@ -9,12 +9,14 @@ import type { CreateUserRequest } from "@/src/models";
 import { toastSuccess } from "@/src/lib";
 
 
-export default function CreateUserPage() {
+const CreateUserPageInner = () => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const handleSubmit = async (data: CreateUserRequest) => {
+    const title = useMemo(() => "Create User", []);
+
+    const handleSubmit = useCallback(async (data: CreateUserRequest) => {
         setIsLoading(true);
         setErrorMessage(null);
         try {
@@ -30,14 +32,19 @@ export default function CreateUserPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [router]);
 
-    const handleSubmitWrapper = (payload: unknown) => {
-        void handleSubmit(payload as CreateUserRequest);
-    };
+    const handleSubmitWrapper = useCallback(
+        (payload: unknown) => {
+            void handleSubmit(payload as CreateUserRequest);
+        },
+        [handleSubmit]
+    );
+
+    const handleBack = useCallback(() => router.back(), [router]);
 
     return (
-        <AdminFormTemplate title="Create User" onBack={() => router.back()}>
+        <AdminFormTemplate title={title} onBack={handleBack}>
             <UserForm
                 mode="create"
                 onSubmit={handleSubmitWrapper}
@@ -46,4 +53,6 @@ export default function CreateUserPage() {
             />
         </AdminFormTemplate>
     );
-}
+};
+
+export default memo(CreateUserPageInner);

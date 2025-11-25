@@ -1,6 +1,9 @@
 "use client";
 
-export const AdminInventoryTemplate = ({
+import { memo } from "react";
+
+
+const AdminInventoryTemplateInner = ({
     title,
     children
 }: {
@@ -25,3 +28,5 @@ export const AdminInventoryTemplate = ({
         </div>
     );
 };
+
+export const AdminInventoryTemplate = memo(AdminInventoryTemplateInner);

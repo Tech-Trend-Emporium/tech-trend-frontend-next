@@ -1,22 +1,39 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { Button, ItemCard } from "@/src/components";
 import { useFavorites } from "@/src/hooks";
 
 
-export default function FavoritesPage() {
+const FavoritesPageInner = () => {
     const { favoriteProducts, loading, error } = useFavorites();
+
+    const hasItems = (favoriteProducts ?? []).length > 0;
+
+    const cards = useMemo(
+        () =>
+            (favoriteProducts ?? []).map((p) => (
+                <ItemCard
+                    key={p.id}
+                    id={p.id.toString()}
+                    image={p.imageUrl}
+                    title={p.title}
+                    price={p.price}
+                />
+            )),
+        [favoriteProducts]
+    );
 
     if (loading) {
         return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100"></div>
-                    <p className="mt-4 text-gray-600 dark:text-gray-400">Loading favorites...</p>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="text-center">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100"></div>
+                        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading favorites...</p>
+                    </div>
                 </div>
             </div>
-        </div>
         );
     }
 
@@ -42,7 +59,7 @@ export default function FavoritesPage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Header */}
-                {favoriteProducts.length !== 0 && (
+                {hasItems && (
                     <div className="text-center mb-12">
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                             Favorites
@@ -57,7 +74,11 @@ export default function FavoritesPage() {
                 )}
 
                 {/* Products Grid */}
-                {favoriteProducts.length === 0 ? (
+                {hasItems ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {cards}
+                    </div>
+                ) : (
                     <div className="text-center py-16">
                         <svg
                             className="mx-auto h-24 w-24 text-gray-400"
@@ -65,41 +86,23 @@ export default function FavoritesPage() {
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1.5}
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                         <h3 className="mt-4 text-2xl font-medium text-gray-900 dark:text-gray-100">
                             You have no favorites yet
                         </h3>
                         <p className="mt-2 text-gray-600 dark:text-gray-400">
-                            Start adding products to your favorites list
+                            Start adding products to your favorites list by clicking the heart icon on any product.
                         </p>
-                        <Button
-                            href="/"
-                            variant="outline"
-                            className="mt-6 hover:cursor-pointer"
-                        >
+                        <Button href="/" variant="outline" className="mt-6 hover:cursor-pointer">
                             Explore Store
                         </Button>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {favoriteProducts.map((product) => (
-                            <ItemCard
-                                key={product.id}
-                                id={product.id.toString()}
-                                image={product.imageUrl}
-                                title={product.title}
-                                price={product.price}
-                            />
-                        ))}
                     </div>
                 )}
             </div>
         </div>
     );
-}
+};
+
+export default memo(FavoritesPageInner);

@@ -1,69 +1,85 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
-import { AdminFormTemplate, UserForm } from "@/src/components";
-import { UserService } from "@/src/services";
-import type { UpdateUserRequest, UserResponse } from "@/src/models";
+import { AdminFormTemplate, LoadingScreen, UserForm } from "@/src/components";
 import { toastError, toastSuccess } from "@/src/lib";
+import { UpdateUserRequest, UserResponse } from "@/src/models";
+import { UserService } from "@/src/services";
+import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 
-export default function EditUserPage() {
+const EditUserPageInner = () => {
     const router = useRouter();
-    const params = useParams();
-    const userId = Number(params.id);
+    const params = useParams<{ id: string }>();
+
+    const userId = useMemo(() => Number(params?.id), [params?.id]);
 
     const [user, setUser] = useState<UserResponse | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    const title = useMemo(() => "Edit User", []);
+
     useEffect(() => {
-        (async () => {
-            try {
-                const data = await UserService.getById(userId);
-                setUser(data);
-            } catch (error) {
-                console.error("Failed to fetch user", error);
-                toastError("Failed to load user data");
-                router.push("/admin/users");
-            } finally {
-                setLoadingUser(false);
-            }
-        })();
+        if (Number.isNaN(userId)) {
+            toastError("Invalid user id");
+            router.push("/admin/users");
+        }
     }, [userId, router]);
 
-    const handleSubmit = async (payload: UpdateUserRequest) => {
-        setSubmitting(true);
-        setErrorMessage(null);
-        try {
-            await UserService.update(userId, payload);
-            toastSuccess("User updated successfully");
-            router.push("/admin/users");
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setErrorMessage(error.response?.data?.message || "Failed to update user");
-            } else {
-                setErrorMessage("Unexpected error occurred");
+    useEffect(() => {
+        if (Number.isNaN(userId)) return;
+
+        const controller = new AbortController();
+        const { signal } = controller;
+
+        (async () => {
+            setLoadingUser(true);
+            try {
+                const data = await UserService.getById(userId);
+                if (!signal.aborted) setUser(data);
+            } catch {
+                if (!signal.aborted) {
+                    toastError("Failed to load user data");
+                    router.push("/admin/users");
+                }
+            } finally {
+                if (!signal.aborted) setLoadingUser(false);
             }
-        } finally {
-            setSubmitting(false);
-        }
-    };
+        })();
 
-    if (loadingUser) {
-        return (
-            <div className="h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 dark:border-gray-200"></div>
-            </div>
-        );
-    }
+        return () => controller.abort();
+    }, [userId, router]);
 
+    const handleBack = useCallback(() => router.back(), [router]);
+
+    const handleSubmit = useCallback(
+        async (payload: UpdateUserRequest) => {
+            if (Number.isNaN(userId)) return;
+            setSubmitting(true);
+            setErrorMessage(null);
+            try {
+                await UserService.update(userId, payload);
+                toastSuccess("User updated successfully");
+                router.push("/admin/users");
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    setErrorMessage(error.response?.data?.message || "Failed to update user");
+                } else {
+                    setErrorMessage("Unexpected error occurred");
+                }
+            } finally {
+                setSubmitting(false);
+            }
+        },
+        [userId, router]
+    );
+
+    if (loadingUser) return <LoadingScreen />;
     if (!user) return null;
 
     return (
-        <AdminFormTemplate title="Edit User" onBack={() => router.back()}>
+        <AdminFormTemplate title={title} onBack={handleBack}>
             <UserForm
                 mode="edit"
                 initial={user}
@@ -73,4 +89,6 @@ export default function EditUserPage() {
             />
         </AdminFormTemplate>
     );
-}
+};
+
+export default memo(EditUserPageInner);

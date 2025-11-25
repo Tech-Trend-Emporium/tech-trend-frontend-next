@@ -1,11 +1,12 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { AuthTemplate, SignInForm } from "@/src/components";
 import { useSignIn } from "@/src/hooks";
 
 
-export default function SignInPage() {
+const SignInPageInner = () => {
   const { isLoading, errorMessage, handleSubmit } = useSignIn();
 
   return (
@@ -50,4 +51,6 @@ export default function SignInPage() {
       </p>
     </AuthTemplate>
   );
-}
+};
+
+export default memo(SignInPageInner);

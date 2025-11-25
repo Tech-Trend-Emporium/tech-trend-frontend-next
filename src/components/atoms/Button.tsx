@@ -1,14 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { forwardRef, memo } from "react";
 import Link from "next/link";
-import React from "react";
 
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "danger" | "dark";
 type ButtonSize = "sm" | "md" | "lg";
 
 type NativeButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
-type AnchorButtonProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-  href: string;
-};
+type AnchorButtonProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string };
 
 type ButtonPropsBase = {
   variant?: ButtonVariant;
@@ -19,10 +18,10 @@ type ButtonPropsBase = {
   disabled?: boolean;
   href?: string;
   children: React.ReactNode;
+  className?: string;
 };
 
-type ButtonProps = ButtonPropsBase &
-  (NativeButtonProps | AnchorButtonProps);
+type ButtonProps = ButtonPropsBase & (NativeButtonProps | AnchorButtonProps);
 
 const baseStyles =
   "inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg";
@@ -46,70 +45,83 @@ const sizeStyles: Record<ButtonSize, string> = {
   lg: "px-8 py-3 text-lg",
 };
 
-export const Button: React.FC<ButtonProps> = ({
-  variant = "primary",
-  size = "md",
-  fullWidth = false,
-  isLoading = false,
-  loadingText = "Procesando...",
-  className = "",
-  disabled,
-  href,
-  children,
-  ...props
-}) => {
-  const combinedClassName = [
-    baseStyles,
-    variantStyles[variant],
-    sizeStyles[size],
-    fullWidth ? "w-full" : "",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+const ButtonInner = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
+  (
+    {
+      variant = "primary",
+      size = "md",
+      fullWidth = false,
+      isLoading = false,
+      loadingText = "Loading...",
+      className = "",
+      disabled,
+      href,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const combinedClassName =
+      baseStyles +
+      " " +
+      variantStyles[variant] +
+      " " +
+      sizeStyles[size] +
+      (fullWidth ? " w-full" : "") +
+      (className ? " " + className : "");
 
-  // Narrow props for correct JSX spread
-  const buttonProps = props as React.ButtonHTMLAttributes<HTMLButtonElement>;
-  const anchorProps = props as React.AnchorHTMLAttributes<HTMLAnchorElement>;
+    if (href) {
+      const anchorProps = props as React.AnchorHTMLAttributes<HTMLAnchorElement>;
+      return (
+        <Link href={href} className={combinedClassName} ref={ref as any} {...anchorProps}>
+          {isLoading ? loadingText : children}
+        </Link>
+      );
+    }
 
-  // ✅ Render an <a> if href is provided, otherwise a <button>
-  if (href) {
+    const buttonProps = props as React.ButtonHTMLAttributes<HTMLButtonElement>;
     return (
-      <Link href={href} className={combinedClassName} {...anchorProps}>
+      <button
+        ref={ref as any}
+        className={combinedClassName}
+        disabled={disabled || isLoading}
+        {...buttonProps}
+      >
+        {isLoading && (
+          <svg
+            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+        )}
         {isLoading ? loadingText : children}
-      </Link>
+      </button>
     );
   }
+);
 
+ButtonInner.displayName = "ButtonInner";
+
+const areEqual = (prev: Readonly<ButtonProps>, next: Readonly<ButtonProps>) => {
   return (
-    <button
-      className={combinedClassName}
-      disabled={disabled || isLoading}
-      {...buttonProps}
-    >
-      {isLoading && (
-        <svg 
-          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" 
-          viewBox="0 0 24 24"
-        >
-          <circle 
-            className="opacity-25" 
-            cx="12" 
-            cy="12" 
-            r="10" 
-            stroke="currentColor" 
-            strokeWidth="4"
-          />
-          <path 
-            className="opacity-75" 
-            fill="currentColor" 
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          />
-        </svg>
-      )}
-      {isLoading ? loadingText : children}
-    </button>
+    prev.variant === next.variant &&
+    prev.size === next.size &&
+    prev.fullWidth === next.fullWidth &&
+    prev.isLoading === next.isLoading &&
+    prev.loadingText === next.loadingText &&
+    prev.disabled === next.disabled &&
+    prev.href === next.href &&
+    prev.className === next.className &&
+    prev.children === next.children
   );
 };
+
+export const Button = memo(ButtonInner as any, areEqual);
