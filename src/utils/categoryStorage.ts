@@ -7,10 +7,10 @@ type CacheEntry = {
 };
 
 const CATEGORY_ALL = "category-all" as const;
-const getCategoryKey = (category?: string) => (category ? `category-${category}` : CATEGORY_ALL);
+export const getCategoryKey = (category?: string) => (category ? `category-${category}` : CATEGORY_ALL);
 
-const hasWindow = () => typeof window !== "undefined";
-const getStore = () => (hasWindow() ? window.sessionStorage : null);
+export const hasWindow = () => typeof window !== "undefined";
+export const getStore = () => (hasWindow() ? window.sessionStorage : null);
 
 export const getCachedData = (category?: string): CacheEntry => {
   const store = getStore();

@@ -6,6 +6,7 @@ import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
 import React from "react";
+import { useSeedDataBase } from "@/src/hooks/useSeedDataBase";
 
 
 export const NavbarComponent = () => {
@@ -14,6 +15,7 @@ export const NavbarComponent = () => {
   const { isAuthenticated, role, username } = useIdentity();
   const { handleSearchChange, handleSearchSubmit, handleSuggestionClick, searchValue, suggestions } = useSearchBar();
   const { itemCount } = useCart();
+  useSeedDataBase();
 
   const roleLabel =
     role === "SHOPPER" ? "User" :
@@ -60,6 +62,7 @@ export const NavbarComponent = () => {
           align-items: center;
           text-align: center;
         }
+          
       `}</style>
 
       <Navbar fluid className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2.5">

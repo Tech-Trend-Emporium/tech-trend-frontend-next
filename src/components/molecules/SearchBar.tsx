@@ -1,3 +1,5 @@
+import { ProductService } from "@/src/services";
+import { saveCache } from "@/src/utils";
 import * as React from "react";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 
@@ -22,6 +24,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   inputId = "navbar-search",
 }) => {
   const [internalValue, setInternalValue] = React.useState("");
+  
   const v = value ?? internalValue;
 
   const setV = (val: string) => {
@@ -33,6 +36,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     e.preventDefault();
     onSubmit?.(v);
   };
+
+  //Ante cualquier busqueda, reviso la caché.
+  //Cuando añadan un producto, lo añado a la caché,
+  //Cuando quitan un producto, lo quito de la caché,
+  //Cuando actualicen un producto, lo antualizo en la caché
 
   return (
     <form
