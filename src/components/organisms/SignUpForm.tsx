@@ -1,9 +1,10 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { InputField, DropdownField, Form } from "@/src/components";
 import { SignUpRequest } from "@/src/models";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 
 interface SignUpInputs {
@@ -64,6 +65,9 @@ const SignUpFormInner = ({
 
   const passwordValue = useWatch({ control, name: "password" });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const submitBtn = useMemo(
     () => ({
       text: "Create Account",
@@ -123,13 +127,23 @@ const SignUpFormInner = ({
         rules={passwordRules}
         render={({ field }) => (
           <>
-            <InputField
-              {...field}
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Create a strong password"
-            />
+            <div className="relative">
+              <InputField
+                {...field}
+                id="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a strong password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+              </button>
+            </div>
             {errors.password?.message && <p className="text-red-600 text-sm">{errors.password.message}</p>}
           </>
         )}
@@ -145,13 +159,23 @@ const SignUpFormInner = ({
         }}
         render={({ field }) => (
           <>
-            <InputField
-              {...field}
-              id="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              placeholder="Re-enter password"
-            />
+            <div className="relative">
+              <InputField
+                {...field}
+                id="confirmPassword"
+                label="Confirm Password"
+                type={showConfirm ? "text" : "password"}
+                placeholder="Re-enter password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm((v) => !v)}
+                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition"
+                aria-label={showConfirm ? "Hide confirmation" : "Show confirmation"}
+              >
+                {showConfirm ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+              </button>
+            </div>
             {errors.confirmPassword?.message && (
               <p className="text-red-600 text-sm">{errors.confirmPassword.message}</p>
             )}
@@ -197,15 +221,12 @@ const SignUpFormInner = ({
       />
     </Form>
   );
-}
-
-const areEqual = (prev: Readonly<SignUpFormProps>, next: Readonly<SignUpFormProps>) => {
-  return (
-    prev.isLoading === next.isLoading &&
-    prev.errorMessage === next.errorMessage &&
-    prev.onSubmit === next.onSubmit &&
-    prev.securityQuestions === next.securityQuestions
-  );
 };
+
+const areEqual = (prev: Readonly<SignUpFormProps>, next: Readonly<SignUpFormProps>) =>
+  prev.isLoading === next.isLoading &&
+  prev.errorMessage === next.errorMessage &&
+  prev.onSubmit === next.onSubmit &&
+  prev.securityQuestions === next.securityQuestions;
 
 export const SignUpForm = memo(SignUpFormInner, areEqual);
