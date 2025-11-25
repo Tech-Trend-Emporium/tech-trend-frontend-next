@@ -4,8 +4,7 @@ import { Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, Button a
 import { Logo, Button, LogoutButton, SearchBar } from "@/src/components";
 import { IoMdCart } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import { useIdentity, useMounted, useSearchBar, useCart } from "@/src/hooks";
-import { useSeedDataBase } from "@/src/hooks/useSeedDataBase";
+import { useIdentity, useMounted, useSearchBar, useCart, useSeedDataBase } from "@/src/hooks";
 
 
 export const NavbarComponent = () => {
