@@ -1,8 +1,9 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { CheckboxField, InputField, Form } from "@/src/components";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 
 interface SignInInputs {
@@ -39,6 +40,10 @@ const SignInFormInner = ({ onSubmit, isLoading, errorMessage }: SignInFormProps)
     defaultValues: { emailOrUsername: "", password: "", rememberMe: false },
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePassword = () => setShowPassword((prev) => !prev);
+
   const submitBtn = useMemo(
     () => ({
       text: "Log In",
@@ -56,6 +61,7 @@ const SignInFormInner = ({ onSubmit, isLoading, errorMessage }: SignInFormProps)
       errorMessage={errorMessage}
       className="space-y-5"
     >
+      {/* Email / Username */}
       <Controller
         name="emailOrUsername"
         control={control}
@@ -82,13 +88,24 @@ const SignInFormInner = ({ onSubmit, isLoading, errorMessage }: SignInFormProps)
         rules={passwordRules}
         render={({ field }) => (
           <>
-            <InputField
-              {...field}
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Create a strong password"
-            />
+            <div className="relative">
+              <InputField
+                {...field}
+                id="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a strong password"
+              />
+              <button
+                type="button"
+                onClick={togglePassword}
+                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+              </button>
+            </div>
+
             {errors.password?.message && (
               <p className="text-red-600 text-sm">{errors.password.message}</p>
             )}
@@ -96,6 +113,7 @@ const SignInFormInner = ({ onSubmit, isLoading, errorMessage }: SignInFormProps)
         )}
       />
 
+      {/* Remember me */}
       <Controller
         name="rememberMe"
         control={control}
@@ -111,14 +129,14 @@ const SignInFormInner = ({ onSubmit, isLoading, errorMessage }: SignInFormProps)
       />
     </Form>
   );
-}
+};
 
-const areEqual = (prev: Readonly<SignInFormProps>, next: Readonly<SignInFormProps>) => {
-  return (
-    prev.isLoading === next.isLoading &&
-    prev.errorMessage === next.errorMessage &&
-    prev.onSubmit === next.onSubmit
-  );
-}
+const areEqual = (
+  prev: Readonly<SignInFormProps>,
+  next: Readonly<SignInFormProps>
+) =>
+  prev.isLoading === next.isLoading &&
+  prev.errorMessage === next.errorMessage &&
+  prev.onSubmit === next.onSubmit;
 
 export const SignInForm = memo(SignInFormInner, areEqual);
