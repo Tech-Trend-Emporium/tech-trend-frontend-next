@@ -7,6 +7,7 @@ import type { ProductResponse } from "@/src/models";
 interface ProductsTableProps {
     products: ProductResponse[];
     isLoading: boolean;
+    isAdmin?: boolean;
     onEdit: (id: number) => void;
     onDelete: (id: number) => void;
 }
@@ -16,6 +17,7 @@ export const ProductsTableInner = ({
     isLoading,
     onEdit,
     onDelete,
+    isAdmin = false,
 }: ProductsTableProps) => {
     const { rows } = useMemo(() => {
         const priceFmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -64,7 +66,9 @@ export const ProductsTableInner = ({
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Inventory</th>
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Created</th>
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Updated</th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Actions</th>
+                            {isAdmin && (
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Actions</th>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -77,20 +81,22 @@ export const ProductsTableInner = ({
                                 <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{r.inventory}</td>
                                 <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{r.createdAtStr}</td>
                                 <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{r.updatedAtStr}</td>
-                                <td className="px-6 py-4 text-sm text-right space-x-2">
-                                    <button
-                                        onClick={() => onEdit(r.id)}
-                                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => onDelete(r.id)}
-                                        className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium transition-colors"
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
+                                {isAdmin && (
+                                    <td className="px-6 py-4 text-sm text-right space-x-2">
+                                        <button
+                                            onClick={() => onEdit(r.id)}
+                                            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => onDelete(r.id)}
+                                            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium transition-colors"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>
@@ -117,20 +123,22 @@ export const ProductsTableInner = ({
                                 <p>Created: {r.createdAtStr}</p>
                                 <p>Updated: {r.updatedAtStr}</p>
                             </div>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => onEdit(r.id)}
-                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => onDelete(r.id)}
-                                    className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium"
-                                >
-                                    Delete
-                                </button>
-                            </div>
+                            {isAdmin && (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => onEdit(r.id)}
+                                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => onDelete(r.id)}
+                                        className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}
