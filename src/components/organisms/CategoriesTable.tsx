@@ -7,6 +7,7 @@ import type { CategoryResponse } from "@/src/models";
 interface CategoriesTableProps {
     categories: CategoryResponse[];
     isLoading: boolean;
+    isAdmin?: boolean;
     onEdit: (id: number) => void;
     onDelete: (id: number) => void;
 }
@@ -16,6 +17,7 @@ const CategoriesTableInner = ({
     isLoading,
     onEdit,
     onDelete,
+    isAdmin = false,
 }: CategoriesTableProps) => {
     const dateTimeFmt = useMemo(
         () => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }),
@@ -32,23 +34,25 @@ const CategoriesTableInner = ({
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{c.name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{fmt(c.createdAt)}</td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{fmt(c.updatedAt ?? null)}</td>
-                    <td className="px-6 py-4 text-sm text-right space-x-2">
-                        <button
-                            onClick={() => onEdit(c.id)}
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
-                        >
-                            Edit
-                        </button>
-                        <button
-                            onClick={() => onDelete(c.id)}
-                            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium transition-colors"
-                        >
-                            Delete
-                        </button>
-                    </td>
+                    {isAdmin && (
+                        <td className="px-6 py-4 text-sm text-right space-x-2">
+                            <button
+                                onClick={() => onEdit(c.id)}
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={() => onDelete(c.id)}
+                                className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </td>
+                    )}
                 </tr>
             )),
-        [categories, fmt, onEdit, onDelete]
+        [categories, fmt, onEdit, onDelete, isAdmin]
     );
 
     const mobileCards = useMemo(
@@ -68,24 +72,26 @@ const CategoriesTableInner = ({
                             <p className="text-gray-600 dark:text-gray-400">Updated: {fmt(c.updatedAt ?? null)}</p>
                         </div>
 
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => onEdit(c.id)}
-                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                onClick={() => onDelete(c.id)}
-                                className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium"
-                            >
-                                Delete
-                            </button>
-                        </div>
+                        {isAdmin && (
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => onEdit(c.id)}
+                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => onDelete(c.id)}
+                                    className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )),
-        [categories, fmt, onEdit, onDelete]
+        [categories, fmt, onEdit, onDelete, isAdmin]
     );
 
     if (isLoading) {
@@ -123,9 +129,11 @@ const CategoriesTableInner = ({
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
                                 Updated
                             </th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                Actions
-                            </th>
+                            {isAdmin && (
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                    Actions
+                                </th>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">{desktopRows}</tbody>

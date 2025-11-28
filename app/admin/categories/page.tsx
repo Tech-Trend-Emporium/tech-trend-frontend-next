@@ -8,10 +8,12 @@ import type { CategoryResponse, DeleteCategoryResult } from "@/src/models";
 import { toastSuccess, toastError } from "@/src/lib";
 import { AdminListTemplate, CategoriesTable, ConfirmModal, Pagination } from "@/src/components";
 import { usePaginatedList } from "@/src/hooks";
+import { useAuth } from "@/src/auth";
 
 
 const CategoriesListPageInner = () => {
     const router = useRouter();
+    const { auth } = useAuth();
 
     const {
         items: categories,
@@ -118,6 +120,7 @@ const CategoriesListPageInner = () => {
                     isLoading={loading}
                     onEdit={handleEdit}
                     onDelete={onDeleteAsk}
+                    isAdmin={auth.isAuthenticated && auth?.role === "ADMIN"}
                 />
 
                 {canShowPagination && (

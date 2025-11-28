@@ -8,10 +8,12 @@ import { AdminListTemplate, ConfirmModal, Pagination, ProductsTable } from "@/sr
 import { ProductService } from "@/src/services";
 import type { ProductResponse, DeleteProductResult } from "@/src/models";
 import { usePaginatedList } from "@/src/hooks";
+import { useAuth } from "@/src/auth";
 
 
 const ProductsListPageInner = () => {
     const router = useRouter();
+    const { auth } = useAuth();
     const {
         items: products,
         total,
@@ -75,6 +77,7 @@ const ProductsListPageInner = () => {
                     isLoading={loading}
                     onEdit={goEdit}
                     onDelete={openDelete}
+                    isAdmin={auth.isAuthenticated && auth?.role === "ADMIN"}
                 />
 
                 {showPager && (
